@@ -32,6 +32,7 @@ library(MASS)
 library(acebayes)
 library(tidyverse)
 library(GGally)
+library(truncnorm)
 ggplot2::theme_set(theme_bw())
 
 
@@ -67,16 +68,16 @@ for(alpha in c(0.5, 0.75)){
 
 prior <- function(B){
   
-  # Inicializa como ceros
+  # Initialize as zeros
   p <- matrix(rep(0, B*5), ncol = 5, nrow = B)
   
-  # Utiliza distribuciones definidas en la tesis
+  # Define same prior distributions as the authors
   for(i in c(1, 3, 5)){
-    p[ , i] <- runif(B, 1, 1+alpha)
+    p[ , i] <- runif(B, 1, 1 + alpha)
   }
   
   for(i in c(2, 4)){
-    p[ , i] <- runif(B, -1-alpha, -1)
+    p[ , i] <- runif(B, -1 - alpha, -1)
   }
 
   
@@ -84,10 +85,37 @@ prior <- function(B){
 }
 
 
+# Now modify original prior distribution to compare results
+prior_2 <- function(B){
+  
+  # Initialize as zeros
+  p <- matrix(rep(0, B*5), ncol = 5, nrow = B)
+  
+  # Define new prior distributions
+  for(i in c(1, 3, 5)){
+    p[ , i] <- truncnorm::rtruncnorm(B,
+                                     a = 1,
+                                     b = 1 + alpha,
+                                     mean = 1 + alpha/2,
+                                     sd = 0.1 * alpha)
+  }
+  
+  for(i in c(2, 4)){
+    p[ , i] <- truncnorm::rtruncnorm(B,
+                                     a = -1 - alpha,
+                                     b = -1,
+                                     mean = -1 - alpha/2,
+                                     sd = 0.1 * alpha)
+  }
+  
+  
+  return(p)
+}
 
 
 
-# Optimal design ---- ### ### ### ###
+
+# Original optimal design ---- ### ### ### ###
 ## Obtained with Overstall and Woods' ACE algorithm
 ## with the parameters specified in the thesis
 eta <- acebayes::aceglm(formula=~0+x1+x2+x3+x4+x5,
@@ -97,24 +125,65 @@ eta <- acebayes::aceglm(formula=~0+x1+x2+x3+x4+x5,
                         method = "MC",
                         B = c(20000, 1000),
                         criterion = "D",
-                        Q = 10,
+                        Q = 20,
                         lower = -1,
                         upper = 1)
 
 # Show the optimal design's summary
-eta
+#eta
 
 # Print the optimal design
 eta$phase2.d
 
 # Generate graph comparing variables
 GGally::ggpairs(as.data.frame(eta$phase2.d))
-ggplot2::ggsave(paste0("alpha", alpha))
+ggplot2::ggsave(filename = paste0("alpha", 
+                                  as.character(alpha),
+                                  "original.png"))
 
 
 
 # Save the design in another variable
-ifelse(alpha == 0.5, eta2 <- eta, eta3 <- eta)
+ifelse(alpha == 0.5, eta_5_original <- eta, eta_75_original <- eta)
+
+
+
+
+
+# Optimal design w/modified priors ---- ### ### ### ###
+## Obtained with Overstall and Woods' ACE algorithm
+## with the parameters specified in the thesis
+eta <- acebayes::aceglm(formula=~0+x1+x2+x3+x4+x5,
+                        start.d = start.d, 
+                        family = poisson(link = "log"),
+                        prior = prior_2,
+                        method = "MC",
+                        B = c(20000, 1000),
+                        criterion = "D",
+                        Q = 20,
+                        lower = -1,
+                        upper = 1)
+
+# Show the optimal design's summary
+#eta
+
+# Print the optimal design
+eta$phase2.d
+
+# Generate graph comparing variables
+GGally::ggpairs(as.data.frame(eta$phase2.d))
+ggplot2::ggsave(filename = paste0("alpha", 
+                                  as.character(alpha), 
+                                  "modified.png"))
+
+
+
+# Save the design in another variable
+ifelse(alpha == 0.5, eta_5_modified <- eta, eta_75_modified <- eta)
+
+
+
+
 
 }
 
@@ -122,28 +191,58 @@ ifelse(alpha == 0.5, eta2 <- eta, eta3 <- eta)
 
 # Assess convergence ---- ### ### ### ####
 
-
+# Original prior distributions
 # alpha = 0.5
-eta2.phase <- -c(eta2$phase1.trace, eta2$phase2.trace)
-m <- length(eta2.phase)
-eta2.phase <- data.frame("Número" = 1:m, "Utilidad_esperada" = eta2.phase)
+eta_5_original.phase <- -c(eta_5_original$phase1.trace, eta_5_original$phase2.trace)
+m <- length(eta_5_original.phase)
+eta_5_original.phase <- data.frame("Número" = 1:m, "Utilidad_esperada" = eta_5_original.phase)
 
 # Generate and save plot
-ggplo2::ggplot(eta2.phase, aes(x = Número, y = Utilidad_esperada))+
-  ggplo2::geom_line()+
-  ggplo2::labs(x = "Número de iteración",
-               "Pérdida esperada")
-ggplo2::ggsave("fig_conv_pois_reg_alfa5.png")
+ggplot2::ggplot(eta_5_original.phase, aes(x = Número, y = Utilidad_esperada))+
+  ggplot2::geom_line()+
+  ggplot2::labs(x = "Número de iteración",
+                y = "Pérdida esperada")
+ggplot2::ggsave("fig_conv_pois_reg_alfa5.png")
 
 
 # alpha = 0.75
-eta3.phase <- -c(eta3$phase1.trace, eta3$phase2.trace)
-m <- length(eta3.phase)
-eta3.phase <- data.frame("Número" = 1:m, "Utilidad_esperada" = eta3.phase)
+eta_75_original.phase <- -c(eta_75_original$phase1.trace, eta_75_original$phase2.trace)
+m <- length(eta_75_original.phase)
+eta_75_original.phase <- data.frame("Número" = 1:m, "Utilidad_esperada" = eta_75_original.phase)
 
 # Generate and save plot
-ggplo2::ggplot(eta3.phase, aes(x = Número, y = Utilidad_esperada))+
-  ggplo2::geom_line()+
-  ggplo2::labs(x = "Número de iteración",
+ggplot2::ggplot(eta_75_original.phase, aes(x = Número, y = Utilidad_esperada))+
+  ggplot2::geom_line()+
+  ggplot2::labs(x = "Número de iteración",
                y = "Pérdida esperada")
-ggplo2::ggsave("fig_conv_pois_reg_alfa75.png")
+ggplot2::ggsave("fig_conv_pois_reg_alfa75.png")
+
+
+
+
+
+# Modified prior distributions
+# alpha = 0.5
+eta_5_modified.phase <- -c(eta_5_modified$phase1.trace, eta_5_modified$phase2.trace)
+m <- length(eta_5_modified.phase)
+eta_5_modified.phase <- data.frame("Número" = 1:m, "Utilidad_esperada" = eta_5_modified.phase)
+
+# Generate and save plot
+ggplot2::ggplot(eta_5_modified.phase, aes(x = Número, y = Utilidad_esperada))+
+  ggplot2::geom_line()+
+  ggplot2::labs(x = "Número de iteración",
+                y = "Pérdida esperada")
+ggplot2::ggsave("fig_conv_pois_reg_alfa5_modified.png")
+
+
+# alpha = 0.75
+eta_75_modified.phase <- -c(eta_75_modified$phase1.trace, eta_75_modified$phase2.trace)
+m <- length(eta_75_modified.phase)
+eta_75_modified.phase <- data.frame("Número" = 1:m, "Utilidad_esperada" = eta_75_modified.phase)
+
+# Generate and save plot
+ggplot2::ggplot(eta_75_modified.phase, aes(x = Número, y = Utilidad_esperada))+
+  ggplot2::geom_line()+
+  ggplot2::labs(x = "Número de iteración",
+               y = "Pérdida esperada")
+ggplot2::ggsave("fig_conv_pois_reg_alfa75_modified.png")
