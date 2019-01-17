@@ -1,0 +1,78 @@
+\chapter{Conclusiones} \label{chapter:conclusiones}
+
+\epigraph{\textit{The concept of the statistician as one who analyzes someone else's data is flawed, but equally inaproppiate is the idea of the statistician engaged only in the design and analysis of an individual experiment.}}{--- Box y Liu, \textit{Statistics as a Catalyst to Learning by Scientific Method Part I--An Example} (1999)}
+
+
+
+
+La importancia del diseño de experimentos radica en que éste permite que la recolección de datos se realice acorde a algún criterio de optimalidad, el cual debe reflejar el objetivo final del estudio en cuestión. Esto eleva la calidad de cualquier análisis inferencial hecho con base en los datos, pues permite que quien realiza el experimento modifique las covariables y observe el valor resultante de la variable respuesta en un ambiente controlado. \\
+
+
+
+
+El problema de diseño experimental se puede plantear de manera natural como un problema de decisión, lo cual lo coloca en el marco de la Estadística Bayesiana. Sin embargo inmediatamente aparecen complicaciones en la formulación; en particular en la mayoría de los casos no existen soluciones analíticas. Más aún, dichas soluciones son difíciles de encontrar incluso mediante métodos computacionales. Una estrategia que ha resultado de utilidad es suponer conocido el modelo de muestreo de la variable respuesta, pues esto puede simplificar algunos de los cálculos numéricos. Los modelos lineales generalizados son de gran ventaja en este caso, pues son lo suficientemente generales como para que muchos fenómenos se puedan modelar con ellos pero a la vez han sido estudiados con profundidad en la literatura. \\
+
+
+
+
+El método ACE es uno de los algoritmos más recientes para encontrar diseños óptimos \citep{Woods_ACE}, y es particularmente útil en el marco de modelos lineales generalizados y criterios de optimalidad Bayesiana populares. En esta tesis se utilizó este método para abordar dos problemas de diseño de experimentos para modelos lineales generalizados: una regresión logística y una regresión Poisson. Ambos provienen de un artículo publicado por \cite{Woods_etal}, en donde los autores muestran distintas aplicaciones del método ACE. \\
+
+
+
+
+En el caso de la regresión logística el diseño encontrado fue consistente con el encontrado por Woods et al. Para la regresión Poisson se encontraron diseños óptimos utilizando un criterio de optimalidad distinto al propuesto por los autores, lo que implicó consecuencias interesantes en las que se ahondará más adelante. Por otra parte se discutió el hecho de que, en ambos ejemplos, Woods et al. utilizaron distribuciones iniciales que presuponían a los parámetros del modelo como diferentes de cero. Por ello se obtuvieron diseños óptimos con distribuciones iniciales modificadas que evitaran este supuesto. \\
+
+
+
+
+No está de más recordar que, en el ejemplo de la regresión logística, se ilustró la dificultad que se encuentra al buscar una expresión analítica para la pérdida esperada. En el camino se resaltó la complejidad inherente a los cálculos relacionados con la optimización de la pérdida esperada. Este ejemplo ilustra por qué es necesario, en muchos casos, recurrir a métodos computacionales que asistan con la obtención del diseño óptimo. Por otra parte, al modificar el soporte de las distribuciones iniciales de forma que éste contuviera al cero, se encontró un diseño óptimo diferente al original. Puntualmente se observó que las únicas covariables afectadas eran las correspondientes a los parámetros cuyas distribuciones iniciales marginales fueron modificadas, y en ese caso ocurrió que la correlación entre estas covariables disminuyó considerablemente en el nuevo diseño óptimo. \\
+
+
+El ejemplo de la regresión Poisson fue exhaustivo y dio lugar a algunos hallazgos que merecen mayor discusión. En primer lugar el hecho de utilizar criterios de optimalidad distintos derivó en diseños óptimos diferentes. Más aún, la distribución final del parámetro a la que cada diseño dio lugar difirió según el criterio de optimalidad empleado. Por otro lado se modificó la distribución inicial del parámetro. A diferencia del ejemplo de la regresión logística, en este caso se cambió tanto el espacio parametral como la forma de la distribución inicial. Ello derivó en diseños óptimos radicalmente distintos de los originalmente encontrados. Los diseños modificados no mostraban el patrón visto en los originales, es decir, columnas constantes (e iguales a $\pm 1$) salvo en una entrada, sino que contenían combinaciones de $\pm 1$ en todas sus entradas. \\
+
+
+
+De estos dos ejemplos se concluye que tanto el criterio de optimalidad como la distribución inicial del parámetro son elementos de suma importancia y que pueden tener un impacto considerable en el diseño óptimo encontrado, además de que se resaltó la necesidad de emplear métodos computacionales debido a la complejidad analítica del diseño Bayesiano de experimentos. \\
+
+
+
+%En primer lugar el diseño óptimo encontrado varía tanto si solo se cambia el criterio de optimalidad como si además se modifican las distribuciones iniciales. Esto resalta por un lado la importancia de la función de pérdida o utilidad, que da lugar a los criterios de optimalidad. Ésta se debe de escoger de manera que los objetivos del experimento se vean reflejados en ella, y no hacerlo puede acarrear consecuencias negativas para el estudio. Por otro lado se concluye que la manera en la que se reflejan los conocimientos iniciales tiene un impacto en el resultado del análisis, por lo que es imperativo que quien realiza el estudio cuestione cuál es y cómo representar la información inicial que tiene acerca del fenómeno de estudio. \\
+
+
+
+
+%En segundo lugar si bien los diseños óptimos son distintos estos contienen similitudes importantes. En todos los casos todas las covariables tomaban el mismo valor ($\pm 1$) en todos los ensayos menos en uno, característica común a ambos diseños, independientemente del valor de $\alpha$ o de las distribuciones iniciales empleadas. La diferencia radicaba precisamente en ese ensayo distinto, y si se utilizaban las mismas distribuciones iniciales de \cite{Woods_etal} era particularmente evidente en una de las covariables. \\
+
+
+
+%\newpage
+
+
+
+Esta tesis logró entonces, por una parte, desarrollar la teoría detrás del diseño Bayesiano de experimentos y, por otra, ilustrar la implementación del método ACE para obtener diseños Bayesianos óptimos. Esto último se hizo reproduciendo satisfactoriamente dos resultados de la literatura, pero también modificando los factores que afectan los diseños óptimos encontrados. Finalmente hay algunos puntos importantes que merecen mayor discusión. \\
+
+
+
+Primeramente, si bien el método ACE permite resolver problemas bastante generales de diseño experimental, también es cierto que la implementación de dicho método no es trivial. Muchos procedimientos frecuentistas, como ajustar un modelo de regresión, son sumamente sencillos de realizar con ayuda de software especializado. Incluso algunos métodos computacionales Bayesianos, como el muestreo de Gibbs para generar muestras de una distribución final, son cada vez más accesibles. Sin embargo, debido a que muchas de las componentes del diseño de experimentos varían por estudio, éstas deben ser especificadas para cada análisis realizado. Es por ello que generalizar un método para este tipo de problemas es complicado, y la implementación termina siendo compleja en el mejor de los casos. \\
+
+
+
+
+Por otro lado la eficiencia computacional del método depende altamente de las especificaciones del usuario. Si la función de pérdida es muy compleja el método puede tardar en terminar e, incluso cuando lo hace, la convergencia puede no haberse alcanzado. Esto se soluciona parcialmente utilizando el paquete en \textsf{R} de los autores \citep{acebayes}, pues incluye criterios de optimalidad predeterminados. Sin embargo no se debe olvidar que la función de pérdida debe reflejar los objetivos del experimento; si ninguna de las funciones incluidas en dicho paquete satisface esto, entonces se debe especificar una adecuada. \\
+
+
+
+Un punto que es relevante en el diseño de experimentos pero que no fue abordado en esta tesis es el del costo del experimento. Se ha insistido en que una de las ventajas del diseño experimental es que permite obtener información de calidad satisfaciendo restricciones presupuestales. Sin embargo este punto no se consideró al momento de desarrollar la teoría detrás del diseño de experimentos, ni en las aplicaciones del Capítulo \ref{chapter:doe_para_glms}. No está de más mencionar que es posible incorporar este elemento en la función de pérdida, de manera similar a como lo hace \cite{bernardo_samplesize} cuando considera el problema de la elección del tamaño de muestra. \\
+
+
+
+El diseño Bayesiano de experimentos es un campo activo de investigación, particularmente por las dificultades prácticas inherentes a la solución de problemas reales. Sin embargo los últimos años han visto un despegue en el interés hacia esta área, acarreando el desarrollo de métodos ingeniosos que permiten vencer dichas dificultades \citep{Woods_ACE,Woods_etal}. Si bien el enfoque clásico es aún mucho más popular, también es cierto que la contraparte Bayesiana ofrece ventajas sobre éste, como la capacidad de incorporar información preliminar en el análisis en forma de distribuciones iniciales. \\
+
+
+
+Futuras investigaciones pueden estar enfocadas a desarrollar nuevos métodos que faciliten la resolución de este tipo de problemas, es decir, cuya implementación sea más accesible y, a la vez, se puedan utilizar para diseños con un mayor número de ensayos y funciones de pérdida más generales. Esto tendría un impacto relevante en todas las áreas que con regularidad diseñan estadísticamente sus experimentos; particularmente, áreas industriales y médicas en donde los recursos son limitados y se requiere obtener la mayor cantidad de información gastando la menor cantidad posible de presupuesto.
+
+
+
+
+

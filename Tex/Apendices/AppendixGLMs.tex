@@ -1,0 +1,50 @@
+Este apéndice tiene como propósito desarrollar el modelo de regresión Gamma, que es relevante en el contexto de modelos lineales generalizados pero no fue incluido en el Capítulo \ref{chapter:glms}.
+
+%Este apéndice tiene como propósito desarrollar algunos modelos lineales generalizados que no se incluyeron en el Capítulo \ref{chapter:glms}.
+
+
+
+
+\section{Modelo de regresión Gamma}
+
+
+Sea $X \sim \G (\alpha, \beta)$ una variable aleatoria, donde $\alpha, \beta > 0$ son desconocidos. Entonces, para $x>0$,
+\begin{align*}
+	f_X(x \, | \, \alpha, \beta ) &= \frac{ \beta^{\alpha} }{ \Gamma(\alpha) } x^{\alpha - 1} e^{-\beta x} \\
+    &= \Exp \left\{ \log \frac{ \beta^{\alpha} }{ \Gamma(\alpha) } + (\alpha - 1) \log x - \beta x \right\} \\
+    &= \Exp \left\{ -\beta x + \alpha \log \beta - \alpha \log \alpha + \alpha \log \alpha - \log \Gamma(\alpha) + (\alpha - 1) \log x \right\} \\
+    &= \Exp \left\{ \alpha \left( -\frac{\beta}{\alpha} x + \log \frac{\beta}{\alpha} \right) + \alpha \log \alpha - \log \Gamma(\alpha) + (\alpha - 1) \log x \right\}.
+\end{align*}
+Ergo, la distribución Gamma pertenece a la familia exponencial de distribuciones (\ref{def:fam_exponencial}), con
+\begin{equation*}
+	\theta = -\frac{\beta}{\alpha} = -\frac{1}{\mu}, \quad \phi = \alpha.
+\end{equation*}
+Aquí, $\mu = \E [X]$ y, además,
+\begin{equation*}
+	a(\phi) = \frac{1}{\phi}, \quad b(\theta) = -\log(-\theta), \quad c(\phi, x) = \phi \log \phi - \log \Gamma(\phi) + (\phi - 1) \log x.
+\end{equation*}
+
+Note que, de nuevo,
+\begin{equation*}
+	\mu = -\frac{1}{\theta} = b'(\theta)
+\end{equation*}
+y
+\begin{equation*}
+	\V (X) = \frac{\alpha}{\beta^2} = b''(\theta) a(\phi).
+\end{equation*}
+
+Con esto ya es posible pensar en un modelo lineal generalizado con una respuesta que se distribuya Gamma. Sin embargo, observe que la liga canónica es
+\begin{equation*}
+	\eta = -\frac{1}{\mu}.
+\end{equation*}
+Esto resulta ser muy poco práctico, ya que el lado derecho de la expresión siempre es negativo, mientras que el lado izquierdo puede, en principio, no serlo. El modelo Gamma es uno de los pocos modelos para los cuales esto ocurre. Empero, existe una liga que, si bien no es la canónica, es sumamente popular: la liga \textit{log}. Ésta es de la forma
+\begin{equation}
+	\eta = \log \mu,
+\end{equation}
+y tiene una relación cercana con el modelo de regresión clásico: en algunas ocasiones es de utilidad modelar no la variable respuesta, sino su logaritmo ($ \log y = \eta $). Como \cite{montgomery_glm} mencionan, en ese caso se transforma la respuesta, mientras que en el caso del modelo lineal generalizado se transforma la media de la distribución. En la práctica esta función liga es muy popular. En resumen, el modelo de regresión Gamma es
+\begin{equation} \label{eq:gamma_regression}
+	\mu = e^{\eta}.
+\end{equation}
+
+Note que, si bien (\ref{eq:gamma_regression}) expresa la misma relación que (\ref{eq:poisson_regression}), las distribuciones que se asumen sobre las variables respuestas son diferentes. En el primer caso la respuesta es continua, mientras que en el modelo Poisson ésta debe ser discreta.
+

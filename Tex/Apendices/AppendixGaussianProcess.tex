@@ -1,0 +1,87 @@
+En este apéndice se discute con mayor detalle el tema de regresión de procesos Gaussianos. Es con un modelo de este estilo con el que se estima la pérdida esperada como función de una sola coordenada del diseño en el método ACE.
+
+
+
+\section*{Modelo de regresión de proceso Gaussiano} 
+
+
+
+Recordemos que en este punto del método se tienen $m$ pares de observaciones de la forma $\left\{ x_l, \, \tilde{\Phi}_{ij}(x_l \, | \, \mathbf{x} ) \right\}_{l=1}^{m}$. La idea es buscar una función que explique la relación entre las $x_l$ y las estimaciones de la pérdida esperada evaluada en ellos. Por ejemplo, en primera instancia podría pensarse en ajustar un modelo de regresión lineal que explique dicha relación, aunque nada indica que exista una relación lineal entre las observaciones y las covariables. Sin embargo, en el mismo espíritu \cite{Woods_ACE} proponen ajustar un modelo de regresión basado en procesos Gaussianos, los cuales definimos a continuación.
+
+\newpage
+
+\begin{definition}[Proceso Gaussiano] \label{def:gaussian_process}
+	Un proceso Gaussiano es un proceso estocástico $\left( Y_t \right)_{t \in \mathcal{T}}$, con $\mathcal{T}$ un conjunto de índices, tal que dada una colección finita de índices $t = (t_1, t_2, ..., t_r)$ el vector aleatorio $Y = (Y_{t_1},$ $Y_{t_2}, ..., Y_{t_r})$ sigue una distribución conjunta Normal multivariada.
+\end{definition}
+
+
+
+Es decir, en el contexto de procesos Gaussianos todo vector aleatorio $Y = (Y_{t_1}, Y_{t_2}, ..., Y_{t_r}) \sim \N_r( \mu, \Sigma ) $. Note que el vector $\mu$ y la matriz $\Sigma$ dependen del vector aleatorio $Y$ en cuestión. En general es posible preguntarse por esta relación, de donde se derivan la función de media, $\mu(t)$, y la función de covarianzas, $k(t, t')$ para todo vector aleatorio $Y$. Es con ellas que se calcula, para cada vector $Y$ de dimensión $r$, la media $\mu$ y la matriz de covarianzas $\Sigma = (\Sigma_{ij}) = (k(t_i, t_j))$ de la distribución normal que describe el comportamiento conjunto de $Y$. \\
+
+
+
+
+La idea de la regresión de proceso Gaussiano es la siguiente. Dados $m$ puntos $\left\{ x_l, \, f(x_l) \right\}_{l=1}^{m}$, se quiere obtener la forma de $f$, o por lo menos sus valores para un conjunto predefinido de valores en el dominio. Recordemos que, en el caso de la regresión lineal, se plantea el modelo
+\begin{equation*}
+	f(x_l) = \beta_0 + \beta^T x_l + \epsilon_l, \quad l=1,...,m.
+\end{equation*}
+Después se asigna una distribución inicial a los parámetros $\beta$ y, con base en los datos observados y el teorema de Bayes, se obtiene la distribución final de los parámetros. Como se discutió previamente, en este caso no es sensato asumir que existe una relación lineal (ni de ninguna forma en particular) entre la covariable y la variable respuesta. La regresión de proceso Gaussiano lleva este razonamiento un nivel más arriba, reconociendo que la incertidumbre en este caso es sobre la misma forma de la función $f$ y no sobre un conjunto de parámetros. Ergo, se asigna una distribución inicial \textit{a la función} y, con base en los valores observados de ésta, se obtiene su distribución final. \\
+
+
+La manera de asignar una distribución a una función es pensándola como una colección infinita de puntos, cada uno de los cuales es una observación de una cierta variable aleatoria. Luego, la función termina siendo una realización de un proceso estocástico continuo. Si además suponemos, por ejemplo, que cada punto es una realización de una variable aleatoria Normal, la función será una realización de un proceso Gaussiano. Las funciones de media y covarianza son, en este contexto, los hiperpárametros del modelo, pues son los que determinan las características del proceso en cuestión. \\
+
+
+Usualmente la función de media se supone, por lo menos a priori, igual a cero. Esto no tiene mayores implicaciones teóricas y se asume comúnmente. La razón es que la clave de la regresión de proceso Gaussiano es la función de covarianzas, $k$. Ésta determina, dados dos puntos, qué tan similares son entre sí. La idea es que dos puntos cercanos produzcan valores de la función cercanos. \cite{Woods_ACE} emplean una función de covarianzas cuadrática exponencial, definida por
+\begin{equation} \label{eq:sq_exp_correlation_matrix}
+	k(x_1, x_2) = \Exp \left\{ -\frac{ (x_1 - x_2)^T (x_1 - x_2) }{2 \ell^2} \right\},
+\end{equation}
+donde $\ell$ es un parámetro que controla qué tanta influencia tienen los puntos entre sí. \\
+
+
+Juntando lo anterior, lo que se propone es pensar a la función $f$ como una realización de un proceso Gaussiano. Se le debe asignar una distribución inicial, es decir, un proceso Gaussiano a priori. Lo que \cite{Woods_ACE} proponen es suponer que la función de media inicial es igual a cero y la función de varianzas está dada por (\ref{eq:sq_exp_correlation_matrix}) con $\ell = 1$.  \\
+
+
+
+Ahora bien, dado que se tienen $m$ observaciones de valores en el dominio y su correspondiente valor de la función, el siguiente paso es obtener el proceso Gaussiano posterior, el cual describe a la función $f$ habiendo observado los datos. Sea $\hat{x} \in \mathcal{X}_j$ un valor cualquiera en el dominio de la función $f$. Note que, por todo lo anterior, el vector $(f(x_1), f(x_2), ..., f(x_m), f(\hat{x}))$ sigue una distribución conjunta Normal multivariada, con vector de medias y matriz de covarianzas determinados por las funciones correspondientes.\footnote{El vector de medias tendrá las primeras $m$ componentes iguales a cero.} Es posible entonces obtener la distribución condicional de $f(\hat{x}) \, | \, f(x_1), ..., f(x_m)$, y esto se puede hacer empleando las propiedades de la distribución Normal multivariada. Particularmente dicha distribución será también una distribución Normal, con la media y la varianza determinadas por los valores observados. \\ 
+
+
+Resumiendo, la manera en la que se obtiene $\tilde{\Phi}_{ij}(x)$ a partir de \newline $\left\{ x_l, \, \tilde{\Phi}_{ij}(x_l \, | \, \mathbf{x} ) \right\}_{l=1}^{m}$ es:
+\begin{enumerate}
+\item Pensar en $\tilde{\Phi}_{ij}(x)$ como un proceso Gaussiano, es decir, como una colección infinita de observaciones de variables aleatorias Normales.
+\item Asignar una distribución inicial a $\tilde{\Phi}_{ij}(x)$, particularmente un proceso Gaussiano de función de media cero y función de varianzas como en (\ref{eq:sq_exp_correlation_matrix}) con $\ell=1$.
+\item Obtener la distribución posterior de $\tilde{\Phi}_{ij}(x)$ como la distribución marginal condicional de $\tilde{\Phi}_{ij}(x) \, | \, \tilde{\Phi}_{ij}(x_1), \tilde{\Phi}_{ij}(x_2), ..., \tilde{\Phi}_{ij}(x_m)$.
+\item La media de dicha distribución dependerá de $x$, y ésta se utilizará como la estimación puntual de $\tilde{\Phi}_{ij}(x)$, es decir, el emulador Gaussiano mencionado previamente es precisamente la función de media posterior de $\tilde{\Phi}_{ij}(x)$ (para una sola $x \in \mathcal{X}_j$).
+\end{enumerate}
+
+
+Finalmente se muestran explícitamente las fórmulas para obtener el emulador, las cuales se derivan encontrando la media de la distribución condicional de una entrada de un vector aleatorio Normal multivariado. Como \citep{Woods_ACE, Woods_etal} muestran, el emulador Gaussiano de la pérdida esperada como función de una coordenada $i,j$ del diseño está dado por
+\begin{equation} \label{eq:GPemulator}
+	\tilde{\Phi}_{ij}(x) = \hat{\mu}_{ij} + \hat{\sigma}_{ij} a(x, \zeta_{ij})^T A \left( \zeta_{ij} \right)^{-1} z_{ij}.
+\end{equation}
+
+\newpage
+
+Aquí,
+\begin{itemize}
+\item $\hat{\mu}_{ij} = \frac{1}{m} \sum_{l=1}^{m} \tilde{\Phi}_{ij} ( x_l \, | \, \mathbf{x} )$.
+\item $\hat{\sigma}_{ij}^2 = \frac{1}{m-1} \sum_{l=1}^{m} \left( \tilde{\Phi}_{ij} ( x_l \, | \, \mathbf{x} ) - \hat{\mu}_{ij} \right)^2$.
+\item $z_{ij} \in \mathbb{R}^m$ es un vector cuya $l$-ésima entrada es igual a la pérdida esperada estandarizada,
+\begin{equation*}
+	\frac{ \tilde{\Phi}_{ij} ( x_l \, | \, \mathbf{x} ) - \hat{\mu}_{ij} }{ \hat{\sigma}_{ij} }.
+\end{equation*}
+\item $\zeta_{ij} = \left\{ x_1, ..., x_m  \right\}$ son los $m$ puntos provenientes de $\mathcal{X}_j$. 
+\item $a(x, \zeta_{ij}) \in \mathbb{R}^m$ es un vector cuya $u$-ésima entrada es
+\begin{equation*}
+	\Exp \left\{ -\rho (x - x_u)^2 \right\}.
+\end{equation*}
+\item $A$ es una matriz de $m \times m$ cuya $uv$-ésima entrada es
+\begin{equation*}
+	\Exp \left\{ -\rho (x_u - x_v)^2 \right\} + \xi \, \mathds{1}(u=v),
+\end{equation*}
+donde $\xi > 0$ es un parámetro del emulador conocido como \textit{nugget} en inglés y $\mathds{1}(\cdot)$ es la función indicadora. La forma de este vector y matriz se deriva de la elección de la función de varianzas cuadrática exponencial.
+\end{itemize}
+
+El parámetro $\xi$ se incluye para evitar que el algoritmo interpole los valores, y que más bien los suavice. La idea es que, en realidad, las observaciones de $\tilde{\Phi}_{ij}(x_l)$ son estimaciones de la verdadera pérdida $\Phi_{ij}(x_l)$; se desea reflejar esta incertidumbre adicional y ello se logra incorporando un factor aditivo de ruido en la diagonal de la matriz $A$. Tanto $\rho$ como $\xi$ se estiman en cada iteración vía máxima verosimilitud, particularmente utilizando el método de Newton (\textit{Fisher's scoring} en inglés) \citep[pág. 5]{Woods_ACE}. \\
+
+
+Finalmente cabe mencionar que el tema de regresión de procesos Gaussianos tiene mucho mayor profundidad que la aquí presentada. Además ha ganado popularidad en años recientes, particularmente en áreas como aprendizaje de máquina y experimentos computacionales. Se recomienda ampliamente revisar el libro de \cite{rasmussen_and_williams} y la bibliografía ahí citada para un análisis más detallado. \\

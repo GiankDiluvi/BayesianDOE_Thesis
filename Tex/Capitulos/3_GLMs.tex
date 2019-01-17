@@ -1,0 +1,442 @@
+\chapter{Modelos lineales generalizados} \label{chapter:glms}
+
+\epigraph{\textit{Thus the problem of looking intelligently at data demands the formulation of patterns that are thought capable of describing succinctly not only the systematic variation in the data under study, but also for describing patterns in similar data that might be collected by another investigator at another time and in another place.}}{--- McCullagh y Nelder, \textit{Generalized Linear Models} (1983)}
+
+Una de las familias de modelos de mayor importancia en la Estadística es la de los modelos lineales. El análisis de regresión lineal es útil porque permite modelar la variable de interés (o respuesta) como función lineal de una o más variables independientes (o covariables). Además, la teoría matemática y estadística detrás de los modelos lineales es elegante y ha sido muy estudiada. \\
+
+
+El análisis de regresión se remonta al Siglo XIX, cuando Carl Friedrich Gauss y Adrien-Marie Legendre desarrollaron y aplicaron un primer método para datos astronómicos. Sus datos generalmente eran mediciones de cantidades continuas, como posiciones y magnitudes de diversos astros. La variabilidad existente en dichos datos se derivaba de errores de medición, y fue por ello que Gauss introdujo la distribución Normal para describir el comportamiento de dichos errores.  Cabe resaltar que Gauss notó que muchas de las propiedades de los estimadores del modelo de regresión lineal no dependen de la normalidad de los errores, sino de su independencia y homocedasticidad, resultado que hoy lleva su nombre. \\
+
+
+Comúnmente, cuando se trabaja con datos, se busca algún patrón que los describa. Esta es la componente sistemática del análisis, y generalmente enfrenta a una variabilidad en los datos que en mayor o menor medida dificulta la percepción del patrón. Esta última es la componente aleatoria. Todos los modelos estudian ambas componentes, otorgando un resumen de los datos en sus componentes sistemáticas y un análisis de la componente aleatoria. En principio uno podría pensar que un buen modelo es simplemente aquel cuya predicción tiene el menor error posible. Se puede pensar en incluir un número muy alto de parámetros en nuestro modelo, lo que generalmente mejoraría cada vez más la calidad de la predicción en el conjunto de las observaciones; sin embargo, un modelo tal no garantiza que los pronósticos para datos no observados sean correctos. No obstante, ello aumentaría la complejidad del análisis, por lo que la simplicidad del modelo, entendida como \textit{parsimonia}, es también algo importante a considerar. Es por ello que la idea clásica de un modelo lineal es atractiva: permite modelar una variable respuesta (que siga una distribución Normal) como función lineal de una serie de covariables. \\
+
+
+%Sin embargo, no todos los análisis que se realizan involucran variables continuas. Es por ello que siempre ha existido un interés por desarrollar métodos que lidien con variables discretas, como es el caso de los jugadores de cartas y dados en el Siglo XVIII. Distribuciones como la Bernoulli y la Poisson fueron resultado de este interés.\\
+
+
+En la práctica, sin embargo, muchas veces no ocurre que el comportamiento de la variable respuesta se describa adecuadamente mediante una distribución Normal, bien por las características de ésta (si tiene algún sesgo o es solo positiva, e.g.) o bien porque incluso puede ni siquiera ser continua. Los modelos lineales generalizados, introducidos por \cite{nelder_wedderburn}, permiten hacer análisis análogos a los de los modelos lineales clásicos, pero sin presuponer normalidad en la variable respuesta: basta que ésta pertenezca a la familia exponencial de distribuciones.\footnote{También existe otra sutil generalización que se discutirá más adelante.}\\
+
+
+El propósito de este capítulo es sentar las bases de los modelos lineales generalizados, de manera que en el siguiente capítulo se pueda ahondar en el diseño experimental con énfasis en dichos modelos. Por la naturaleza de la tesis, el análisis se hará desde un punto de vista Bayesiano, utilizando la notación e ideas introducidas en el capítulo anterior. Para este efecto se seguirán de cerca las notas de \cite{notas_lm_egp} y \cite{notas_glm_lnieto} así como los libros de modelos lineales generalizados de \cite{glm_bayesian_view} y de \cite{nelder_glm}.
+
+
+\section{Planteamiento}
+
+
+En el contexto de los modelos lineales, supondremos que se tiene una variable respuesta  de interés $Y$ con media $\mu$ y un conjunto de $p$ covariables o regresores $x$. La componente sistemática del análisis corresponde a la descripción de $\mu$ en términos de una cantidad pequeña de parámetros desconocidos $\beta_0, ..., \beta_p$. El primer paso es pensar en $\mu$ como función de $x$, es decir,
+\begin{equation*}
+	\E \left[ Y \, | \, x \right] = \mu (x).
+\end{equation*}
+Aquí, $\mu(\cdot)$ es una función desconocida, por lo que el siguiente paso es preguntarse por su naturaleza. La manera más general de hacer esto es aproximarla mediante una función paramétrica conocida $\psi$ tal que
+\begin{equation*}
+	\mu (x) = \psi (x \, ; \, \beta),
+\end{equation*}
+donde $\beta = (\beta_0, \beta_1, ..., \beta_p)^T$ es el vector de parámetros desconocidos previamente mencionados. Aquí es donde entra la linealidad, pues por facilidad se supone que existe una función conocida $h$ tal que
+\begin{equation} \label{eq:lm1}
+	\psi (x \, ; \, \beta) = h \left(  \beta_0 + \beta_1 s_1(x) + \cdots + \beta_p s_p(x) \right),
+\end{equation}
+donde las funciones $s_1, ..., s_p$ se suponen suaves y conocidas. Recapitulando, lo que se está planteando es el modelo
+\begin{equation} \label{eq:lm2}
+	\E \left[ Y \, | \, x \right] = h \left(  \beta_0 + \beta_1 s_1(x) + \cdots + \beta_p s_p(x) \right).
+\end{equation}
+
+Ahora bien, podemos pensar que tenemos un vector de observaciones \newline$y = (y_1, ..., y_n)^T$, el cual es una realización de $Y = (Y_1, ..., Y_n)^T$, donde las variables aleatorias que forman a $Y$ son independientes y tienen media $\mu_i$, $i=1,...,n$. En ese caso podemos escribir la componente sistemática como
+\begin{equation*}
+	\E \left[ Y_i \, | \, x_i \right] = \mu_i = h \left(  \beta_0 + \beta_1 s_1(x_i) + \cdots + \beta_p s_p(x_i) \right)
+\end{equation*}
+para cada $i=1,...,n$. Aquí, $x_i$ se refiere a los valores observados de las covariables para la $i$-ésima observación. En la literatura se define el \textit{predictor lineal} $\eta_i$ como
+\begin{equation*}
+	\eta_i = \beta_0 + \beta_1 s_1(x_i) + \cdots + \beta_p s_p(x_i).
+\end{equation*}
+La componente sistemática se resume en el predictor lineal, el cual es producido directamente por las covariables. \\
+
+La componente aleatoria tiene como objetivo describir el comportamiento de la incertidumbre que naturalmente entra al análisis al trabajar con variables aleatorias. En el caso de modelos lineales generalizados, se supone que las variables respuesta son independientes, lo cual se debe corroborar tanto como sea posible con los datos. Otro supuesto es que además siguen una distribución perteneciente a la familia exponencial, la cual definimos a continuación.\footnote{Aunque la definición puede variar ligeramente según la fuente, para propósitos de esta tesis se seguirá la definición utilizada por \cite[Capítulo 2.2.2]{nelder_glm}.}
+
+\begin{definition}[Familia exponencial] \label{def:fam_exponencial}
+La variable aleatoria $Y$ pertenece a la familia exponencial de distribuciones si su función de probabilidad generalizada\footnote{Función de densidad si $Y$ es continua, función masa de probabilidad si es discreta.} $f_Y$ se puede escribir como
+\begin{equation*}
+f_Y(y \, | \, \theta, \phi) = \Exp \left\{ \frac{y\theta - b(\theta)}{a(\phi)} + c(y, \phi) \right\} 
+\end{equation*}
+para funciones monótonas conocidas $a(\cdot), b(\cdot)$ y $c(\cdot)$. A $\theta$ se le conoce como parámetro canónico y a $\phi$ como parámetro de dispersión, ya que tiende a estar relacionado con la variabilidad del modelo.
+\end{definition}
+
+Generalmente $a(\phi)$ es de la forma
+\begin{equation} \label{eq:a_phi}
+	a(\phi) = \frac{ \phi }{ w },
+\end{equation}
+donde $w$ es un peso conocido que puede depender del tamaño de muestra. Como ejemplo, en el caso de una colección de $n$ variables aleatorias independientes e idénticamente distribuidas $\N \left( \mu, \sigma^2 \right)$, la media muestral $\bar{Y}$ es una variable aleatoria Normal también y
+\begin{equation*}
+	a(\phi) = \frac{\phi}{n},
+\end{equation*}
+con $\phi = \sigma^2$. Por simplicidad se supondrá que $a(\phi)$ tiene la forma (\ref{eq:a_phi}) y es siempre conocido, lo cual es válido para las distribuciones consideradas en esta tesis. \\
+
+Además es posible mostrar que
+\begin{equation} \label{eq:mu_b_theta}
+	\E [Y] = \mu(\theta) = b'(\theta),
+\end{equation}
+y que
+\begin{equation} \label{eq:var_glm}
+	\V (Y) = b''(\theta)a(\phi) = \mu'(\theta) a(\phi),\footnote{Generalmente existe una relación funcional entre $\mu$ y $\theta$, la cual da lugar a la liga canónica mencionada más adelante.}
+\end{equation}
+donde la diferenciación se toma con respecto a $\theta$. Es interesante que la varianza de $Y$ es el producto de dos funciones: $b''(\theta)$, que solo depende del parámetro canónico y comúnmente se llama \textit{función de varianza}, y $a(\phi)$, que solamente depende de $\phi$ y no de $\theta$. \\
+
+
+
+
+
+\section{Funciones liga}
+
+
+Las componentes sistemática y aleatoria se relacionan mediante una \newline\textit{función liga} $g(\cdot)$ que satisface
+\begin{equation} \label{eq:link_fun_1}
+	\eta_i = g(\mu_i).
+\end{equation}
+
+En el caso de regresión lineal clásico, la variable respuesta sigue una distribución Normal (la cual es un miembro de la familia exponencial) y además la función liga es la función identidad, i.e., $\eta_i = \mu_i$. La generalización es doble: la respuesta puede venir de cualquier distribución de la familia exponencial, y la función liga puede ser cualquier función monótona diferenciable que respete los posibles valores que puedan tomar ambas componentes. \\
+
+
+La importancia de la función liga recae en que ésta relaciona el predictor lineal $\eta$ con la media $\mu$ de los datos $y$. Un caso especial de funciones liga ocurre cuando
+\begin{equation*}
+	\theta = \eta,
+\end{equation*}
+donde $\theta$ es el parámetro canónico definido en (\ref{def:fam_exponencial}). Si dicha relación ocurre, la liga en cuestión se llama \textit{liga canónica} y tiene la propiedad de que garantiza la existencia de una estadística suficiente para $\beta$, es decir, una función tal que la probabilidad condicional de los datos dada dicha función no depende de los parámetros $\beta$. \\
+
+
+Sin embargo es claro que algunas restricciones deben existir sobre la función liga en general; particularmente hay que cerciorarse de que verdaderamente haga sentido igualar $\eta$ y $g(\mu)$. Por ejemplo, si la distribución en cuestión tiene media estrictamente positiva pero el predictor lineal puede tomar valores negativos, claramente la función liga no puede ser la identidad (como es el caso del modelo Poisson). En particular puede ocurrir que la misma liga canónica no se pueda utilizar. A pesar de que utilizar una liga canónica lleve a un modelo con propiedades estadísticas favorables, no se debe sacrificar la validez del modelo en favor de dichas propiedades. La Tabla \ref{tabla:ligas_canonicas} muestra algunas de las ligas canónicas más comunes. \\
+
+
+\begin{table}[h]
+\centering
+\begin{tabular}{l|l}
+Distribución & Liga canónica                             \\ \hline
+Normal       & $\eta = \mu$                              \\
+Poisson      & $\eta = \log( \lambda )$                  \\
+Binomial     & $\eta = \log\left( \frac{p}{1-p} \right)$ \\
+Gamma        & $\eta = -\frac{1}{\mu}$                   
+\end{tabular}
+\caption{Algunas distribuciones importantes con sus respectivas ligas canónicas.} \label{tabla:ligas_canonicas}
+\end{table}
+
+
+\section{Modelo}
+
+En resumen, los modelos lineales generalizados están caracterizados por tres componentes.
+\begin{itemize}
+\item Componente aleatoria: se tiene una serie de variables aleatorias $Y_1,$ $Y_2,$ ..., $Y_n$ independientes provenientes de la familia exponencial, cada una con media $\mu_i$.
+\item Componente sistemática: para cada una de dichas variables $Y_i$ se tiene un vector de covariables $x_i = (x_{i1}, ..., x_{ip})$ que da lugar al predictor lineal,
+\begin{equation*}
+	\eta_i = \beta_0 + \beta_1 s_1(x_i) + \cdots + \beta_p s_p(x_i).
+\end{equation*}
+\item Función liga: Las componentes aleatoria y sistemática se relacionan mediante una función liga $g$, de forma que
+\begin{equation*}
+	\eta_i = g(\mu_i).
+\end{equation*}
+\end{itemize}
+
+
+\section{Estimación de los parámetros}
+
+Si bien hasta ahora se ha seguido de cerca el planteamiento propuesto por \cite{nelder_glm}, la estimación de los parámetros discutida por ellos se presenta desde una perspectiva clásica, no Bayesiana. Para este tema se seguirán el artículo de \cite{glm_bayesian_view} y las notas de \cite{notas_glm_lnieto}. \\
+
+
+Consideremos una colección de variables aleatorias independientes $Y_1, ..., Y_n$ cada una proveniente de la familia exponencial, es decir, tales que
+\begin{equation*}
+	f_{Y_i} (y \, | \, \theta_i, \phi_i ) = \Exp \left\{ \frac{y\theta_i - b(\theta_i)}{a(\phi_i)} + c(y, \phi_i) \right\}, \quad i=1,...,n.
+\end{equation*}
+Supondremos que el parámetro de dispersión, $\phi_i$, es conocido para cada $i$. En el contexto de los modelos lineales generalizados supondremos además que las componentes sistemática y aleatoria se relacionan mediante la liga canónica y que las funciones $s_1, ..., s_p$ del predictor lineal son tales que
+\begin{equation*}
+	\theta_i = \eta_i = \beta_0 + \beta_1 x_{i1} + \cdots + \beta_p x_{ip}.
+\end{equation*}
+
+Se definen por simplicidad $y = (y_1, ..., y_n)^T$ y $\beta = (\beta_0, ..., \beta_p)^T$. En ese caso, la función de verosimilitud del modelo es de la forma
+\begin{equation} \label{glm_verosimilitud_0}
+	L( \beta \, | \, y ) = \Exp \left\{ \sum_{i=1}^{n} \left[ \frac{y_i\eta_i - b(\eta_i)}{a(\phi_i)} + c(y_i, \phi_i) \right] \right\}
+\end{equation}
+o, alternativamente,
+\begin{equation} \label{glm_verosimilitud}
+	L( \beta \, | \, y ) \propto \Exp \left\{ \sum_{i=1}^{n} \frac{y_i\eta_i - b(\eta_i)}{a(\phi_i)} \right\}.
+\end{equation}
+
+Desde la perspectiva clásica los parámetros del modelo se estiman vía máxima verosimilitud. En el enfoque Bayesiano se recurre al proceso de aprendizaje mencionado en el Capítulo \ref{chapter:bayesiana}. Las cantidades desconocidas del análisis son los parámetros del modelo, $\beta$ y, en algunos casos, el parámetro de dispersión $\phi$; a dichas cantidades se les debe asignar una función de densidad inicial $p(\beta, \phi)$ y, utilizando el Teorema de Bayes, se debe encontrar la función de densidad final $p(\beta, \phi \, | \, y)$. Finalmente, dependiendo la función de pérdida en cuestión, se debe resolver el problema de inferencia relevante minimizando la pérdida esperada, calculada con base en la distribución final. \\
+
+
+
+
+De nuevo suponiendo $\phi_i$ conocido para cada $i$, una elección común para la distribución inicial de $\beta$ \citep{glm_bayesian_view, notas_glm_lnieto} es una distribución $\N \left( b_0, T_0 \right)$, es decir,
+\begin{align} \label{glm_inicial}
+	p(\beta) &= \N (\beta \, | \, b_0, T_0) \nonumber \\
+    		 &\propto \Exp \left\{ -\frac{1}{2} (\beta - b_0)^T T (\beta - b_0) \right\}.
+\end{align}
+
+En ese caso la distribución final es
+\begin{align} \label{glm_final}
+	p(\beta \, | \, y) &\propto L(\beta \, | \, y) p(\beta) \nonumber \\
+    	&\propto \Exp \left\{ \sum_{i=1}^{n} \frac{y_i\eta_i - b(\eta_i)}{a(\phi_i)} \right\} \Exp \left\{ -\frac{1}{2} (\beta - b_0)^T T (\beta - b_0) \right\} \nonumber \\
+        &\propto \Exp \left\{ \sum_{i=1}^{n} \left[ \frac{y_i\eta_i - b(\eta_i)}{a(\phi_i)} \right] -\frac{1}{2} (\beta - b_0)^T T (\beta - b_0) \right\}.
+\end{align}
+
+Si la información inicial que se tiene sobre los parámetros $\beta$ es mínima o, por alguna razón, no se desea incluirla en el análisis, es posible utilizar alguna distribución inicial mínimo informativa. \citet[Capítulo 2.2]{glm_bayesian_view} mencionan que una posibilidad es utilizar la distribución inicial de Jeffreys,
+\begin{equation}
+	p(\beta) \propto \left| I(\beta) \right|^{1/2},
+\end{equation}
+donde $I(\beta)$ es la matriz de información de Fisher, (\ref{eq:fisher_info_matrix}). \\
+
+
+
+Es necesario recordar que, como se mencionó en el capítulo anterior, el cálculo de la distribución final tiende a ser sumamente complicado; en muchos casos puede no existir siquiera una forma analítica cerrada para ésta. Los métodos computacionales Bayesianos juegan un papel central en el análisis Bayesiano de los modelos lineales generalizados, ya que permiten obtener una muestra de la distribución final. A partir de esa base se puede obtener cualquier resumen inferencial de interés (cuya precisión se puede fijar arbitrariamente). \\
+
+
+
+
+\section{Matriz de información de Fisher}
+
+Un concepto importante para el diseño de modelos lineales generalizados es el de la matriz de información de Fisher para $\beta$. En general, dada una muestra aleatoria $Y_1, ..., Y_n$ proveniente del modelo $f(y_i \, | \, \beta)$, la matriz de información de Fisher para $\beta$ se define como
+\begin{equation} \label{eq:fisher_info_matrix_general}
+	I(\beta) = -\E \left[ \nabla^2 \ell(\beta \, | \, y) \right],
+\end{equation}
+donde $\ell(\beta \, | \, y) = \log( L( \beta \, | \, y ) )$ es la log-verosimilitud del modelo y $\nabla^2$ se refiere a la matriz Hessiana de esta última. 
+
+\begin{proposition}
+	Consideremos un modelo lineal generalizado de $n$ observaciones y $p$ covariables en el cual la componente aleatoria y sistemática se relacionan mediante la liga canónica, $\eta_i = \theta_i$, y, además, el parámetro de dispersión $\phi_i$ es conocido para cada $i$. Entonces la matriz de información de Fisher para $\beta$ está dada por
+    \begin{equation} \label{eq:fisher_info_matrix}
+    	I(\beta) = X^T W X,
+    \end{equation}
+    donde $X$ es una matriz de $n \times p$ cuyo $i$-ésimo renglón es $x_i$, y $W$ es una matriz diagonal de $n \times n$, donde la $i$-ésima entrada de la diagonal es
+\begin{equation*}
+	W_{ii} = \left[ \V (y_i) \right]^{-1} \left( b''(\theta_i) \right)^2, \quad i=1,...,n.
+	\end{equation*}
+\end{proposition}
+
+
+\begin{proof}
+	Note que la log-verosimilitud del modelo está dada por
+    \begin{equation*}
+    	\ell(\beta \, | \, y) = \sum_{i=1}^{n} \left[ \frac{y_i\eta_i - b(\eta_i)}{a(\phi_i)} + c(y_i, \phi_i) \right].
+    \end{equation*}
+    El segundo término de la suma no depende de $\beta$ por lo que, al derivar, éste se elimina. Así pues,
+    \begin{align*}
+    	\frac{\partial \ell}{\partial \beta_j} &= \sum_{i=1}^{n} \frac{1}{a(\phi_i)} \, \frac{\partial}{\partial \beta_j} (y_i \eta_i - b(\eta_i)) \\
+        &= \sum_{i=1}^{n} \frac{x_{ij}}{a(\phi_i)} (y_i - b'(\eta_i) ).
+    \end{align*}
+    Luego,
+    \begin{align*}
+    	\frac{\partial^2 \ell}{\partial \beta_j \partial \beta_k} &= \sum_{i=1}^{n} \frac{\partial}{\partial \beta_k} \left( \frac{y_i x_{ij}}{a(\phi_i)} \right) - \sum_{i=1}^{n} \frac{\partial}{\partial \beta_k} \left( \frac{b'(\eta_i) x_{ij}}{a(\phi_i)} \right).
+    \end{align*}
+    La primera suma es cero pues cada uno de los sumandos es a su vez cero: $y_i x_{ij} / a(\phi_i)$ no depende de $\beta_k$. Entonces
+    \begin{align*}
+    	\frac{\partial^2 \ell}{\partial \beta_j \partial \beta_k} &= -\sum_{i=1}^{n} \frac{x_{ij} x_{ik}}{a(\phi_i)} b''(\eta_i).
+    \end{align*}
+    Por lo dicho en la sección 3.1, $\V (y_i) = b''(\theta_i) a(\phi_i)$. Además $\theta_i = \eta_i$ ya que se está utilizando la liga canónica. Multiplicando la expresión anterior por $b''(\theta_i) / b''(\theta_i)$ obtenemos entonces que
+    \begin{equation} \label{eq:sum_proposition}
+    	\frac{\partial^2 \ell}{\partial \beta_j \partial \beta_k} = -\sum_{i=1}^{n} \frac{x_{ij} x_{ik}}{\V (y_i)} (b''(\theta_i))^2.
+    \end{equation}
+    Ya que (\ref{eq:sum_proposition}) no depende de $y_i$ para ninguna $i$, no cambia al tomar valor esperado, y solo hay que multiplicar por -1 para obtener la expresión correspondiente a la información de Fisher. El resultado se deriva entonces expresando (\ref{eq:sum_proposition}) matricialmente.
+\end{proof}
+
+
+%En segundo lugar, la elección de la distribución inicial es un tema por demás delicado. Muchas veces se opta por escoger una densidad inicial no informativa, y en algunos casos ésta puede no ser propia.\footnote{Es decir, que la integral de la función de densidad sobre todo el espacio parametral no sea finita.} Dado que el cálculo de la distribución final se hace numéricamente, si no se corrobora que ésta sí sea propia entonces los resúmenes inferenciales obtenidos serían irrelevantes. \cite[Capítulo 1.2.2]{glm_bayesian_view} discuten algunas distribuciones iniciales populares (una Normal, por ejemplo) y algunas no informativas, así como condiciones para que la distribución final sea propia. También mencionan los resultados analíticos que sí son conocidos, como la forma general de la distribución inicial y de las condicionales completas, con las cuales se puede implementar un muestreo de Gibbs (ver Apéndice \ref{chapter:appendixBayesiana}).\\
+
+
+
+
+
+
+\section{Algunos modelos lineales generalizados}
+
+
+A continuación se describirán tres de los modelos lineales generalizados más comunes: la regresión lineal clásica, la regresión logística y la regresión Poisson. En el caso de la primera, se mencionarán también algunas distribuciones inicial con sus correspondientes distribuciones finales.
+
+
+\subsection{Modelo de regresión lineal}
+
+
+Supongamos que $Y \sim \N \left( \mu, \sigma^2 \right)$. Entonces
+\begin{align*}
+	f_Y(y \, |  \, \mu, \theta) &= \left( 2 \pi \sigma^2 \right)^{-\frac{1}{2}} \Exp \left\{ -\frac{1}{2 \sigma^2} (y - \mu)^2 \right\} \\
+    &= \Exp \left\{ -\frac{1}{2 \sigma^2} \left( y^2 - 2 y \mu + \mu^2 \right) \right\} \Exp \left\{ -\frac{1}{2} \log\left( 2 \pi \sigma^2 \right)  \right\} \\
+    &= \Exp \left\{ \frac{y \mu - \frac{1}{2} \mu^2 }{\sigma^2} - \frac{1}{2} \left( \frac{y^2}{\sigma^2} + \log \left( 2 \pi \sigma^2 \right) \right) \right\}.
+\end{align*}
+Esto ya está en la forma de la Definición \ref{def:fam_exponencial} de la familia exponencial, con $\theta = \mu$, $\phi = \sigma^2$ y
+\begin{equation*}
+a(\phi) = \phi, \quad b(\theta) = \frac{1}{2} \theta^2, \quad c(y, \phi) = -\frac{1}{2} \left( \frac{y^2}{\phi} + \log \left( 2 \pi \phi \right) \right).
+\end{equation*}
+En este caso el parámetro canónico resulta ser precisamente $\mu$ y el parámetro de dispersión no es más que $\sigma^2$. Por otro lado, como \citet[Capítulo 2.2.2]{nelder_glm} argumentan, es fácil comprobar que
+\begin{equation*}
+	\E[ Y ] = b'(\theta)
+\end{equation*}
+y
+\begin{equation*}
+	\textrm{Var}(Y) = b''(\theta) a(\phi),
+\end{equation*}
+donde la diferenciación se toma con respecto a $\theta$.\\
+
+
+De esta forma, se puede pensar en la familia de modelos lineales generalizados cuya respuesta $Y$ sigue una distribución Normal. En particular, dado que $\theta = \mu$, podemos pensar en la liga canónica:
+\begin{equation*}
+	\eta = \mu.
+\end{equation*}
+Generalmente $\eta$ es una combinación lineal de las covariables, $x_1, ..., x_p$, y los parámetros desconocidos, $\beta_0, \beta_1, ..., \beta_p$, es decir,
+\begin{equation*}
+	\mu = \beta_0 + \sum_{j=1}^{p} \beta_j x_j.
+\end{equation*}
+Sin embargo, no hemos considerado la componente aleatoria. Dado que $Y \sim \N (\mu, \sigma^2)$, podemos escribir
+\begin{equation*}
+	Y = \mu + \varepsilon,
+\end{equation*}
+donde $\varepsilon \sim \N (0, \sigma^2)$.\footnote{Se puede pensar que $\varepsilon = Y - \mu$, lo que hace evidente que es una variable aleatoria Normal centrada en cero y con la misma varianza que $Y$.} Esta estructura aditiva de errores no es general ni compartida con otros modelos lineales generalizados, pero es una de las características que hacen a este modelo particular tan atractivo. Así pues, el modelo de regresión lineal toma la forma
+\begin{equation*}
+	Y = \beta_0 + \sum_{j=1}^{p} \beta_j x_j + \varepsilon.
+\end{equation*}
+
+
+En la práctica generalmente tendremos un vector de observaciones $y = (y_1, ..., y_n)^T$, el cual se puede pensar como una realización de $Y = (Y_1, ..., Y_n)^T$, donde las componentes de $Y$ son variables aleatorias Normales independientes, cada una con media $\mu_i$, $i=1, ..., n$. Así pues, si indexamos las observaciones con $i$ y las covariables con $j$, el modelo de regresión lineal es
+\begin{equation} \label{eq:lin_reg1}
+	y_i = \beta_0 + \sum_{j=1}^{p} \beta_j x_{ij} + \varepsilon_i, \quad i=1, ..., n,
+\end{equation}
+donde $x_{ij}$ se refiere a la $i$-ésima observación de la $j$-ésima covariable. Además, se supone que los errores son independientes y tienen la misma varianza. \\
+
+Generalmente se define la matriz de datos como $X = (x_{ij})$, y se le agrega una columna de unos a la izquierda. De esta forma, $X$ es $n \times (p+1)$, y debe ser de rango completo. Si $\beta = (\beta_0, \beta_1, ..., \beta_p)^T$ y $\varepsilon = (\varepsilon_1, ..., \varepsilon_n)^T$, entonces podemos escribir (\ref{eq:lin_reg1}) como
+\begin{equation} \label{eq:lin_reg2}
+	y = X \beta + \varepsilon.
+\end{equation}
+A (\ref{eq:lin_reg2}) se le conoce como modelo de regresión lineal clásico, y es equivalente a decir que
+\begin{equation}\label{eq:lin_reg3}
+	Y \sim \N_n (X\beta, \sigma^2 I_n),
+\end{equation}
+donde $I_n$ es la matriz identidad de dimensión $n$. Por simplicidad a partir de ahora se trabajará con la precisión en lugar de la varianza, $\tau = \frac{1}{\sigma^2}$. Además se define por facilidad $q = p+1$ (el número de parámetros desconocidos). \\
+
+
+Ahora bien, como \citet{notas_lm_egp} argumenta, la verosimilitud del modelo (\ref{eq:lin_reg3}) está dada por
+\begin{equation*}
+	L(\beta, \tau; \, y) \propto \tau^{n/2} \Exp \left\{ -\frac{\tau}{2} \left[ (\beta - \hat{\beta})^T X^T X (\beta - \hat{\beta}) + n \hat{\sigma}^2 \right] \right\},
+\end{equation*}
+donde
+\begin{equation*}
+	\hat{\beta} = (X^T X)^{-1} X^T y, \quad \hat{\sigma}^2 = \frac{1}{n} (y - X\hat{\beta})^T (y - X\hat{\beta})
+\end{equation*}
+son los estimadores de máxima verosimilitud de $\beta$ y $\sigma^2$. Así pues, dada la forma de la verosimilitud, una familia de distribuciones iniciales conveniente es de la forma
+\begin{equation} \label{eq:lin_reg_conjugated}
+	p(\beta, \tau) = p(\beta \, | \, \tau) \, p(\tau) = \N_p \left(\beta \, | \, b_0, \tau^{-1} B_{0}^{-1} \right) \, \G \left(\tau \, \Big| \, \frac{a}{2}, \frac{d}{2} \right),
+\end{equation}
+donde los \textit{hiperparámetros}\footnote{Así llamados porque son los parámetros de la distribución inicial del parámetro.} del modelo son tales que $b_0 \in \mathbb{R}^q, B_0 \in$ M$_{q \times q} (\mathbb{R})$ es una matriz simétrica positiva definida y $a, d > 0$. Esta distribución se conoce como \textit{Normal-Gamma}, y es sumamente popular en el análisis Bayesiano del modelo Normal, por lo que no debe de sorprender que aparezca en el modelo de regresión lineal. \\
+
+Más aún, esta familia es conjugada para $\beta$ y $\tau$ \cite[Capítulo~3.3]{notas_lm_egp}. En particular,
+\begin{equation*}
+	p( \beta, \tau \, | \, y) = p(\beta \, | \, \tau, y) \, p(\tau \, | \, y) = \N_p \left(\beta \, | \, b_1, \tau^{-1} B_{1}^{-1} \right) \, \G \left(\tau \, \Big| \, \frac{a_1}{2}, \frac{d_1}{2} \right),
+\end{equation*}
+donde la actualización de los hiperparámetros está dada por
+\begin{align*}
+	b_1 &= (X^T X + B_0)^{-1} (X^T y + B_0 b_0), \\
+    B_1 &= X^T X + B_0, \\
+    a_1 &= n + a, \\
+    d_1 &= (y - X b_1)^T (y - X b_1) + (b_1 - b_0)^T B_0 (b_1 - b_0) + d.
+\end{align*}
+
+
+Finalmente, es posible que quien está realizando el estudio en cuestión no tenga conocimientos iniciales, o deseé representarlos como vagos. En este caso lo idóneo es utilizar alguna distribución mínimo informativa; por ejemplo, la distribución inicial de Jeffreys para el modelo (\ref{eq:lin_reg3}) es
+\begin{equation} \label{eq:lin_reg_jeffreys}
+	p(\beta, \tau) \propto \tau^{\frac{p-2}{2}},
+\end{equation}
+que no coincide con (\ref{eq:fisher_info_matrix}) porque aquí $\tau$ también es desconocido. Note que (\ref{eq:lin_reg_jeffreys}) es una distribución impropia, y se puede obtener a partir de (\ref{eq:lin_reg_conjugated}) haciendo $a = 0$, $d = 0$ y $B_0 = 0$. Otra distribución inicial de referencia es la obtenida con el método de Bernardo, que da lugar a 
+\begin{equation} \label{eq:lin_reg_bernardo}
+	p(\beta, \tau) \propto \tau^{-1}.
+\end{equation}
+
+En \cite[pp.~16~-18]{notas_lm_egp} se pueden encontrar las formas de las distribuciones finales para (\ref{eq:lin_reg_jeffreys}) y (\ref{eq:lin_reg_bernardo}), así como algunos resultados para realizar inferencia sobre los parámetros de interés.
+
+
+
+\subsection{Modelo de regresión logística}
+
+Supongamos que $Y \sim \Binom(n, p)$, donde $n \in \mathbb{N}$ es conocida pero $p \in [0,1]$ es desconocido. Entonces, para $y \in \{0, 1, ..., n \}$,
+\begin{align*}
+	p(Y = y) &= \binom{n}{y} p^y (1-p)^{n-y} \\
+    	     &= \Exp \left\{ y \log \left( \frac{p}{1-p} \right) + n \log (1-p) + \log \binom{n}{y} \right\}.
+\end{align*}
+Así pues, la distribución binomial pertenece a la familia exponencial de distribuciones (\ref{def:fam_exponencial}), con $\theta = \log \left( \frac{p}{1-p} \right), \phi = 1$ y
+\begin{equation*}
+	a(\phi) = 1, \quad b(\theta) = n \log \left( 1 + e^{\theta} \right), \quad c(y, \phi) = \log \binom{n}{y}.
+\end{equation*}
+
+Notamos que, en efecto,
+\begin{align*}
+	b'(\theta) &= n \frac{ e^\theta }{ 1 + e^\theta} \\
+               &= np \\
+               &= \E[Y]
+\end{align*}
+y
+\begin{align*}
+	b''(\theta)a(\phi) &= n \frac{ e^{-\theta} }{ \left( 1 + e^{-\theta} \right)^2 } \\
+    &= np(1-p) \\
+    &= \V (Y).
+\end{align*}
+
+
+
+De particular interés es la relación que existe entre $\theta$ y la media de la distribución, $p$. Ésta lleva el nombre de \textit{función logit}, y es popular por su gran cantidad de aplicaciones. Además, note que es una función diferenciable, biyectiva y monótona creciente para valores de $p$ en (0,1). Más aún, esto nos dice que la liga canónica toma la forma
+\begin{equation*}
+	\eta = \theta = \log \left( \frac{p}{1-p} \right).
+\end{equation*}
+También es fácil ver que, si se despeja $p$ como función de $\theta$,
+\begin{equation*}
+	p = \frac{1}{1 + e^{-\theta}}.
+\end{equation*}
+Esto quiere decir que el modelo lineal generalizado con distribución binomial y función liga logit es
+\begin{equation} \label{eq:logistic_regression}
+	p = \frac{1}{1 + e^{-\eta}},
+\end{equation}
+donde $\eta = \beta_0 + \beta_1 x_1 + \cdots + \beta_q x_q$. Si en particular la variable aleatoria de interés se distribuye Bernoulli (es decir, Binomial con $n=1$), a (\ref{eq:logistic_regression}) se le conoce como \textit{modelo de regresión logística}. Note que, independientemente de los valores que tome $\eta$, la expresión del lado derecho siempre pertenecerá al intervalo (0,1), donde debe estar $p$. Esto quiere decir que la función logit respeta el rango de valores que pueden tomar tanto $\eta$ como $p$. En resumen, el modelo de regresión logística supone que la relación entre la media $p$ de una variable aleatoria Bernoulli y una serie de $q$ covariables $x_1, ..., x_q$ está dada por
+\begin{equation}
+	\log \left( \frac{p}{1-p} \right) = \beta_0 + \beta_1 x_1 + \cdots + \beta_q x_q.
+\end{equation}
+
+
+
+
+
+\subsection{Modelo de regresión Poisson}
+
+
+Consideremos una variable aleatoria $Y \sim \Pois (\lambda)$, donde $\lambda > 0$ es desconocido. Luego, la función masa de probabilidad de $Y$ es, para $y \in \mathbb{Z}_{\geq 0}$,
+\begin{align*}
+	P(Y = y) &= e^{-\lambda} \frac{\lambda^y}{y!} \\
+             &= \Exp \left\{ y \log \lambda - \lambda - \log y! \right\}.
+\end{align*}
+
+Así pues, la familia Poisson pertenece a la familia exponencial de distribuciones, con $\theta = \log \lambda$, $\phi = 1$ y
+\begin{equation*}
+	a(\phi) = 1, \quad b(\theta) = e^{\theta}, \quad c(y, \phi) = -\log y!.
+\end{equation*}
+
+Note también que
+\begin{equation*}
+	\E[Y] = \lambda = e^{\theta} = b'(\theta)
+\end{equation*}
+y
+\begin{equation*}
+	\V(Y) = \lambda = e^{\theta} = b''(\theta) a(\phi).
+\end{equation*}
+
+Con toda esta información podemos pensar en un modelo lineal generalizado cuya respuesta siga una distribución Poisson. Por lo anterior, la liga canónica es
+\begin{equation*}
+	\eta = \log \mu,
+\end{equation*}
+ya que $\lambda = \mu$. Despejando la media de la distribución, obtenemos que
+\begin{equation} \label{eq:poisson_regression}
+	\mu = e^\eta,
+\end{equation}
+relación que se conoce como \textit{modelo de regresión Poisson}. Particularmente para el caso en el que se tienen $p$ covariables $x_1, ..., x_p$ el modelo de regresión Poisson supone que la relación entre la media $\mu$ de la variable respuesta y las covariables está dada por
+\begin{equation}
+	\log \mu = \beta_0 + \beta_1 x_1 + \cdots + \beta_p x_p.
+\end{equation}
+
+
+
+
+\vskip 1cm
+
+
+
+En resumen, los modelos lineales generalizados proporcionan un marco sumamente amplio para modelar problemas de prácticamente cualquier índole donde interese estudiar el efecto de una colección de covariables en una respuesta aleatoria. Desde que fueron introducidos han sido un objeto de estudio importante tanto desde el punto de vista teórico como práctico. Más aún, es un tema que ha atraído atención tanto por estadísticos clásicos como Bayesianos. Sin embargo, la vertiente Bayesiana sigue sufriendo de la complejidad computacional inherente al cálculo de la distribución final. Como se comentó en el capítulo anterior, hoy en día siguen desarrollándose algoritmos con el propósito de aumentar la eficiencia de este paso crucial del proceso de aprendizaje Bayesiano. En el siguiente capítulo se discutirá una de las muchas aplicaciones de este tipo de modelos: el diseño de experimentos para modelos lineales generalizados.
+
+

@@ -1,0 +1,368 @@
+\chapter{Diseño estadístico de experimentos} \label{chapter:design}
+
+\epigraph{\textit{To consult the statistician after an experiment is finished is often merely to ask him to conduct a post-mortem examination. He can perhaps say what the experiment died of.}}{--- Ronald Fisher}
+
+
+
+Para comenzar a discutir sobre diseño experimental es necesario primero definir qué es un experimento. Si el propósito de la Estadística es describir fenómenos que se manifiestan a través de datos, es de interés explorar cómo es que estos se obtienen. En muchos estudios estadísticos quien lleva a cabo la investigación simplemente observa los datos y realiza análisis con base en estas observaciones. En este tipo de estudios, comúnmente denominados \textit{estudios observacionales}, no se tiene influencia sobre las variables que afectan la respuesta, bien porque es difícil o imposible cuantificarlas o incluso porque no es de interés. \\
+
+Un experimento se diferencia de un estudio observacional porque intenta tener influencia o control sobre algunas de las variables que afectan al proceso que da lugar a los datos. Un experimento se lleva a cabo entonces bajo condiciones controladas, de manera que se pueda estudiar adecuadamente la relación entre las variables independientes y la respuesta. \\
+
+
+
+
+%\tikzstyle{int}=[draw, fill=white, minimum size=2em]
+%\tikzstyle{init} = [pin edge={to-,thin,black}]
+
+
+%\begin{figure}
+	%\centering
+	%\begin{tikzpicture}[node distance=3cm,auto,>=latex']
+    %	\node [int, pin={[init]above:{Variables controladas $x$}}, minimum width=5cm] (a) {Proceso};
+    %	\node (b) [left of=a, node distance=2.5cm, coordinate] {a};
+    %	\node [int] (c) [right of=a] {};
+    %	\node [coordinate] (end) [right of=c, node distance=2cm]{};
+    %	\path[->] (b) edge node {Inputs} (a);
+    %	\path[->] (a) edge node {Output $y$} (c);
+	%\end{tikzpicture}
+%\end{figure}
+
+
+
+Bajo este contexto el diseño estadístico de experimentos se refiere al proceso de planeación de un experimento de manera que se recolecten los datos apropiados, susceptibles de ser analizados con métodos estadísticos. Por su naturaleza el diseño experimental se realiza antes de la recolección de los datos, y se ocupa de aspectos como qué tipo de modelo se planteará y, con base en él, cuántas observaciones se habrán de realizar; qué variables independientes se medirán; a qué niveles (si son factores, por ejemplo); así como cuántas observaciones hacer por cada variable y nivel. La importancia del diseño experimental recae en que permite extraer la mayor cantidad de información de calidad utilizando los recursos disponibles. \\
+
+
+El diseño procura ser óptimo y para tal fin se establece un criterio de optimalidad. De particular importancia son los criterios de optimalidad alfabética, los cuales cuantifican alguna característica del diseño. Por ejemplo, el criterio de $D$~-optimalidad está relacionado con el determinante de la matriz de covarianzas de la matriz de covariables \citep[Capítulo 14.4]{box_draper} y será estudiado más adelante. \\
+
+
+Como \cite{montgomery_doe} menciona, el diseño de experimentos ha pasado por varias etapas, comenzando con el trabajo de Ronald \cite{fisher_doe} en las primeras décadas del Siglo XX. Hoy en día las técnicas del diseño experimental han sido estudiadas y desarrolladas por diversos investigadores, siendo ésta una disciplina frecuentemente abordada en diversos programas de licenciatura y de posgrado. Más aún, las aplicaciones del diseño de experimentos han evolucionado, superando por mucho sus orígenes ligados a la agricultura, las aplicaciones discutidas por Fisher. Prácticamente todas las áreas científicas y de ingeniería han realizado experimentos que se benefician del diseño estadístico. \\
+
+
+En cuanto al enfoque Bayesiano para el diseño de experimentos, es importante destacar que éste en general ha tenido un desarrollo mucho más lento que el de la contraparte clásica. Esto se debe principalmente a la complejidad tanto matemática como computacional que ocurre en el paradigma Bayesiano. Si bien con el desarrollo de los diversos métodos computacionales desde los años 90 se ha logrado sobrepasar esta complejidad, también es cierto que el avance ha sido menor que el de otras áreas de la Estadística Bayesiana. \\
+
+
+El propósito de este capítulo es plantear el problema de diseño de experimentos como uno de decisión, para así resolverlo a nivel teórico con las técnicas del Capítulo \ref{chapter:bayesiana}, manteniendo por lo tanto un enfoque Bayesiano. En particular se discutirán algunas funciones de pérdida populares en la literatura Bayesiana. También se revisará el método ACE de \cite{Woods_ACE}, uno de los métodos más recientes para encontrar diseños óptimos Bayesianos, tema principal de este trabajo. De esta forma se pretende desarrollar la teoría para que en el capítulo siguiente se resuelvan algunos ejemplos de problemas de diseño Bayesiano de experimentos. \\
+
+
+Si se desea ahondar en alguno de los temas presentados, se recomienda ampliamente al lector revisar \citep{box_hunter_hunter, montgomery_doe} para un panorama general del tema y \citep{chaloner_verdinelli_doe} para una versión Bayesiana, así como la bibliografía ahí citada.
+
+
+
+
+\section{Diseño Bayesiano de experimentos}
+
+
+Ya que el diseño estadístico de experimentos se realiza antes de recopilar los datos, es natural utilizar los conocimientos que se tienen relativos al fenómeno a estudiar. Por lo mismo, el diseño experimental se puede considerar por lo menos implícitamente Bayesiano. \cite{chaloner_verdinelli_doe}, siguiendo la idea de \citet[pp.~20-21]{lindley_review}, presentan un enfoque del diseño de experimentos basado en la Teoría de la Decisión. \\
+
+La idea del diseño experimental es determinar qué valores de las covariables (si son continuas) se deben utilizar para obtener los valores de la variable respuesta, o a qué niveles si éstas son variables categóricas, usualmente conocidas como factores. Para retomar la idea de \cite{lindley_review} y \cite{chaloner_verdinelli_doe}, en este trabajo se supondrá que tanto el número de covariables como el de observaciones a registrar ya están determinados y, más aún, que las covariables ya están fijas. Esto quiere decir que no se abordará el tema de selección de modelos, aunque éste generalmente es una parte importante del diseño experimental \citep[ver][]{montgomery_doe}. Más aún, también se supondrá que el modelo que se utilizará después de la recolección de datos es un modelo lineal generalizado. Esto tampoco suele ser así: muchas veces se realizan experimentos preliminares para determinar el tipo de modelo más conveniente (por ejemplo si hay interacciones o términos de orden alto) y se realizan pruebas de bondad de ajuste para posteriormente diseñar el experimento. Sin embargo, para efectos de esta tesis, se supondrá que se conocen qué variables se utilizarán y el tipo de modelo. Lo único que se deberá determinar son los valores que tomarán las covariables, $\mathbf{x}$. \\
+
+
+Supongamos que nuestro experimento involucra $p$ covariables y que el tamaño de muestra permitido es de $n$ observaciones (usualmente llamadas \textit{ensayos}), donde tanto $n$ como $p$ son fijos y conocidos. La $i$-ésima observación será $y_i$, la cual será registrada en las condiciones definidas por los valores $x_i = (x_{i1}, x_{i2}, ..., x_{ip})^T \in \mathcal{X} \subset \mathbb{R}^p$ de las covariables \textit{después} de realizar el experimento; por esto último $y_1, ..., y_n$ se supondrán desconocidas. Un diseño $\mathbf{x} = \{ x_1, ..., x_n \} \in \mathcal{H}$ se refiere a la colección de todos los valores que toman todas las covariables; son estos valores los que se desean determinar. La matriz de diseño de un experimento $\mathbf{x}$ se define como $X = (x_{ij})$, donde $i$ indexa las observaciones y $j$ las variables. Dicho diseño ocasionará que se observen los datos $y = (y_1, ..., y_n)^T \in \mathcal{Y}$. Además se supondrá que $y$ tiene función de probabilidad generalizada $p(y \, | \, \theta, \mathbf{x} )$, donde el parámetro\footnote{Puede ser un parámetro de varias dimensiones.} $\theta \in \Theta$ tiene distribución inicial $p(\theta)$. En este trabajo se supondrá que $y$ es una observación de una variable aleatoria $Y$ perteneciente a la familia exponencial de distribuciones. \\
+
+
+Una manera de identificar los distintos elementos del problema de decisión es refiriéndose a su correspondiente árbol de decisión. En el caso del diseño experimental éste toma la siguiente forma:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  [
+    grow                    = right,
+    sibling distance        = 6em,
+    level distance          = 5em,
+    edge from parent/.style = {draw, -latex},
+    every node/.style       = {font=\normalsize},
+    sloped
+  ]
+  \node [root] {}
+    child { node at (0.1, 1) [dummy] {}
+    		child{ node at (0.1, 0) [env] {}
+            	child{ node at (0.1, 0) [dummy] {}
+                	child{ node at (1.5, 0) {$c \leftrightarrow l(\mathbf{x}, y, d, \theta)$}
+                    edge from parent node [above] {$\theta$}
+                    				 node [below] {$p(\theta \,| \, y, \mathbf{x})$}}
+                edge from parent node [above] {$d$}}
+        	edge from parent node [above] {$y$}
+            				 node [below] {$p(y \, | \, \mathbf{x})$}}
+    	edge from parent node [above] {$\mathbf{x}$}};
+\end{tikzpicture}
+\caption{Árbol de decisión para un problema de diseño experimental.}
+\label{dt:dox}
+\end{figure}
+
+
+El árbol de decisión \ref{dt:dox} es similar a aquel introducido en el Capítulo \ref{chapter:bayesiana}, pero considera no solo la incertidumbre sobre los valores del parámetro $\theta$ sino también la referente a la obtención de los valores de la variable respuesta, $y$. El segundo nodo de decisión se refiere al tipo de descripción  del fenómeno que se hará. Si se decide realizar una estimación por regiones entonces $d$ se referirá a los extremos del intervalo, por ejemplo. Note que las consecuencias se estudian con la función de pérdida $l$, la cual depende del diseño elegido, los datos que se observaron, la descripción que se realizará del fenómeno, y los valores del parámetro. Esta función debe reflejar adecuadamente los objetivos del experimento (e.g. obtener la mejor predicción o minimizar la varianza de los estimadores). \\
+
+
+Ahora bien, el hecho de que la función de pérdida dependa de $d$ amerita mayor discusión. Como se mencionó en el Capítulo \ref{chapter:bayesiana}, en la práctica generalmente se hacen múltiples resúmenes inferenciales de la distribución final. En ese caso tendría que encontrarse un diseño óptimo por cada uno de dichos resúmenes, lo cual no es deseable. Una manera de darle la vuelta a este problema es pensar que se debe encontrar el diseño óptimo no para un problema de inferencia, sino para cualquiera. Es decir, la función de pérdida no debe depender del tipo de descripción que se haga del fenómeno, sino de los elementos que mejor cuantifican la incertidumbre posterior que se tiene sobre el parámetro $\theta$. Por lo tanto en este trabajo se supondrá que $l(\mathbf{x}, y, d, \theta) = l(\mathbf{x}, y, \theta)$, donde esta última se interpreta como la pérdida derivada de escoger el diseño $\mathbf{x}$ que dio lugar a los datos $y$ y considerando el valor $\theta$ del parámetro, independientemente de qué tipo de descripción $d$ del fenómeno se desee hacer. \\
+
+%Si bien en teoría la función de pérdida depende del tipo de descripción del fenómeno que se deseé realizar, $d$, no es sensato pensar que $d$ verdaderamente tenga un impacto en el perjuicio que el diseño elegido tiene para el tomador de decisiones. La razón es que es cuestionable pensar que el diseño óptimo varíe dependiendo del tipo de inferencia que se vaya a realizar sobre $\theta$. Primero porque generalmente no se realiza un solo tipo de descripción del fenómeno, sino varios. Y segundo porque estas descripciones deberían realizarse sobre la misma distribución posterior. Por lo mismo en este trabajo se supondrá que $l(\mathbf{x}, y, d, \theta) = l(\mathbf{x}, y, \theta)$. \\
+
+
+
+
+%En resumen, si se consideran fijos el tamaño de muestra $n$ y el número de covariables $p$, se desea determinar cuál es el diseño $\mathbf{x}$ óptimo, donde dicha optimalidad se discutirá con detalle más adelante. Con esto ya se ha definido el conjunto de opciones, que se refiere al conjunto de todos los posibles diseños, $\mathcal{H}$. Ahora bien, note que el conjunto de consecuencias es, en principio, los valores $y$ que genera el diseño $\mathbf{x}$. Sin embargo hay dos factores que agregan incertidumbre. Al escoger un diseño no es posible determinar qué valores $y$ se obtendrán porque estos provienen de una distribución paramétrica $p(y \, | \, \theta, \mathbf{x})$. Sin embargo no se conocen los valores de $\theta$, por lo que estos son eventos inciertos relevantes; de ahí que se les asigne una distribución inicial. Pero, más aún, incluso si se conociera el valor de $\theta$ no se podría determinar el valor de $y$: la respuesta es una realización de una variable aleatoria, por lo que es imposible determinar con exactitud qué valores tomará incluso conociendo los parámetros. Empero, dicha incertidumbre se puede cuantificar mediante la función de densidad, que se supone conocida. Esta incertidumbre extra se debe a que el diseño experimental se lleva a cabo antes de la recolección de los datos. \\
+
+
+%Resumiendo, los eventos inciertos relevantes se deben medir con una función de densidad de la forma $p( y, \theta \, | \, \mathbf{x})$. Es sobre dicha distribución que se calculará la pérdida esperada que lleve al diseño óptimo. Más aún, note que $p( y, \theta \, | \, \mathbf{x}) = p( \theta \, | \, y, \mathbf{x} ) \, p(y \, | \, \mathbf{x})$, donde es evidente que se trabaja con la distribución final de $\theta$. Sin embargo es importante recalcar que $y$ no se observará. \\
+
+
+Como se discutió previamente, se desea determinar cuál es el diseño óptimo, $\mathbf{x}^*$. Dicha optimalidad debe determinarse con base en \textit{(i)} la función de pérdida $l(\mathbf{x}, y, \theta)$ y \textit{(ii)} la distribución que describe la incertidumbre del tomador de decisiones. Esta incertidumbre proviene de dos fuentes: de la incertidumbre sobre los valores de $y$ que se observarán, la cual se cuantifica con $p(y \, | \, \mathbf{x})$; y de la incertidumbre sobre el verdadero valor del parámetro $\theta$, la cual se cuantifica mediante $p(\theta \, | \, y, \mathbf{x})$ (que corresponde a la distribución final de $\theta$). Entonces la distribución que describe la incertidumbre del tomador de decisiones está dada por
+\begin{equation*}
+	p(\theta, y \, | \, \mathbf{x}) = p(y \, | \, \mathbf{x}) \; p(\theta \, | \, y, \mathbf{x}).
+\end{equation*}
+
+
+Así pues juntando todo lo anterior tenemos que la pérdida esperada de un diseño cualquiera $\mathbf{x} \in \mathcal{H}$ es
+\begin{equation*}
+	\Phi_l(\mathbf{x}) = \E \left[ l(\mathbf{x}, y, \theta) \right] = \int_{\mathcal{Y}} \int_{\Theta} l(\mathbf{x}, y, \theta) \, p(\theta, y \, | \, \mathbf{x}) \,d \theta \,d y.
+\end{equation*}
+Luego, el diseño óptimo $\mathbf{x}^*$ es aquel que minimiza $\Phi_l$,
+\begin{equation} \label{eq:opt_doe_1}
+	\mathbf{x}^* = \argmin_{ \mathbf{x} \in \mathcal{H} } \int_{\mathcal{Y}} \int_{\Theta} l(\mathbf{x}, y, \theta) \, p( \theta, y \, | \, \mathbf{x} ) \,d \theta \,d y. 
+\end{equation}
+
+En principio esta es la solución del problema de diseño de experimentos con los supuestos previamente mencionados. Sin embargo claramente hay algunas observaciones que realizar. En primer lugar, la elección de la función de pérdida o utilidad es un tema sumamente delicado. No hay un consenso sobre una elección idónea, aunque en la literatura existen diversos artículos dedicados a discutir las opciones más populares. Se ahondará en este tema más adelante. \\
+
+Por otro lado, hay que resaltar de nuevo la complejidad computacional en el cálculo de la pérdida esperada en (\ref{eq:opt_doe_1}). Como \cite{Woods_etal} mencionan, existen algunos problemas que se presentan en la práctica:
+\begin{itemize}
+\item[a)] La evaluación de la función de pérdida $l$ puede ser sumamente complicada, ya que puede depender de la distribución final de $\theta$; en muchas ocasiones solo es posible obtener valores de ésta numéricamente, e incluso en ese caso hacerlo no es trivial.
+\item[b)] Las integrales en (\ref{eq:opt_doe_1}) tienden a ser de dimensión alta (la dimensión del parámetro más el número de observaciones), por lo que su cálculo se debe realizar con métodos numéricos ingeniosos y que logren sobrepasar la \textit{maldición de la dimensión}.\footnote{En el contexto de estimar integrales numéricamente, la maldición de la dimensión se refiere a que, conforme aumenta la dimensión de la integral a estimar, el trabajo computacional incrementa exponencialmente.}
+\end{itemize}
+
+
+Esto eleva la dificultad del cálculo de la solución, y es una de las razones por las que el diseño experimental desde un enfoque Bayesiano no ha ganado la popularidad del enfoque clásico. En particular, hasta recientemente no se había notado un avance importante en este tema por sobre los métodos explicados por \cite{chaloner_verdinelli_doe}.
+
+
+
+
+
+\section{Funciones de pérdida}
+
+Hay una gran variedad de funciones de pérdida que se utilizan comúnmente para problemas de diseño experimental \citep[ver][Capítulos 2.2, 2.4, 2.5]{chaloner_verdinelli_doe}. Para propósitos de esta tesis se estudiarán dos en particular. La primera es la \textit{pérdida de auto-información} (SIL por sus siglas en inglés), definida como
+\begin{equation} \label{eq:SIL}
+	l_{\text{SIL}} (\mathbf{x}, y, \theta) = \log \left( \frac{p(\theta )}{p(\theta \, | \, y, \mathbf{x})} \right).
+\end{equation}
+Un diseño óptimo bajo dicha función de pérdida se llamará SIL-óptimo. Siguiendo a Woods et al., por simplicidad se define la pérdida esperada como
+\begin{equation} \label{eq:SIL_full}
+	\Phi_{\text{SIL}} (\mathbf{x}) = \int_{\mathcal{Y}} \int_{\Theta} \log \left( \frac{p(\theta )}{p(\theta \, | \, y, \mathbf{x})} \right) p( \theta, y \, | \, \mathbf{x} ) \,d\theta \,dy.
+\end{equation}
+Un diseño SIL-óptimo es entonces aquel que minimice la pérdida esperada $\Phi_{\text{SIL}}$. \\
+
+La segunda pérdida que se estudiará es similar a $l_{\text{SIL}}$, pero sin considerar la distribución inicial de $\theta$:
+\begin{equation} \label{eq:D_opt}
+	l_D(\mathbf{x}, y, \theta) = \log \left( \frac{1}{p(\theta \, | \, y, \mathbf{x})} \right) p( \theta, y \, | \, \mathbf{x} ).
+\end{equation}
+Así pues, la pérdida esperada a minimizar es
+\begin{equation} \label{eq:D_opt_full}
+	\Phi_{\text{D}} (\mathbf{x}) = \int_{\mathcal{Y}} \int_{\Theta} \log \left( \frac{1}{p(\theta \, | \, y, \mathbf{x})} \right) p( \theta, y \, | \, \mathbf{x} ) \,d\theta \,dy.
+\end{equation}
+
+Las pérdidas esperadas (\ref{eq:SIL_full}) y (\ref{eq:D_opt_full}) merecen mayor discusión, para lo cual primero se enunciará una definición.
+
+\begin{definition}[Divergencia de Kullback-Leibler (1951)]
+	Sean $p(x)$ y $q(x)$ densidades de probabilidad. Entonces la divergencia de Kullback-Leibler de $q$ respecto a $p$ es
+    \begin{equation} \label{eq:KLdivergence}
+    	KL(q \, || \, p) = \int_{X} q(x) \, \log \left( \frac{ q(x) }{ p(x) } \right) \, dx.
+    \end{equation}
+\end{definition}
+
+%En el paradigma Bayesiano usualmente se utiliza para medir la información nueva obtenida en la muestra, calculando cuánto difiere la distribución final de la distribución inicial. 
+
+
+La divergencia de Kullback-Leibler cuantifica la pérdida derivada de aproximar $q(x)$ con $p(x)$, y está intrínsecamente relacionada con la teoría de la información \citep{kullback_leibler}. \citet[Capítulos~2.7.3 y 2.7.4]{bernardo_smith} argumentan que, en el paradigma Bayesiano, esta divergencia puede utilizarse para cuantificar la discrepancia entre la distribución inicial $p(\theta)$ y la distribución final $p(\theta \, | \, y)$. En ese caso la divergencia de Kullback-Leibler cuantifica la cantidad de información obtenida por actualizar la distribución de $\theta$ derivado de haber observado datos $y$. \\
+
+La idea de utilizar esta divergencia como medida de ganancia en información es incluso más general. Como ejemplo, \cite{bernardo_referenceposteriors} emplea esta idea para desarrollar un método que permita construir distribuciones iniciales mínimo informativas. Su idea consiste en pensar en la distribución final como fija y encontrar la distribución inicial que maximice la divergencia de Kullback-Leibler de ambas, pues esto implicaría que la cantidad de información obtenida al pasar de la distribución inicial a la distribución final fue máxima. Esto se puede interpretar como que los conocimientos iniciales reflejados por la distribución inicial eran tan vagos que los datos tuvieron un impacto máximo en dichos conocimientos. \\
+
+
+No está de más resaltar la relevancia que la divergencia de Kullback-Liebler tiene en la Estadística, y particularmente en el paradigma Bayesiano. Hay un sinfín de literatura que explora con mayor profundidad las nociones previamente discutidas, y muchas otras. Particularmente se recomienda revisar \cite{bernardo_informationasutility}; \cite{bernardo_referenceposteriors, bernardo_smith, kullback_leibler} y la bibliografía ahí citada para mayor información al respecto. \\
+
+En el contexto de diseño Bayesiano de experimentos, la divergencia de Kullback-Leibler entre la distribución inicial y la distribución final de $\theta$ es entonces
+\begin{equation} \label{eq:KLdivergence2}
+	KL(p(\theta \, | \, y, \mathbf{x}) \, || \, p(\theta)) = \int_{\Theta} \log \left( \frac{p(\theta \, | \, y, \mathbf{x})}{p(\theta)} \right) p( \theta \, | \, y, \mathbf{x} ) \, d\theta.
+\end{equation}
+
+La expresión (\ref{eq:KLdivergence2}) cuantifica la pérdida que se sufre al utilizar la distribución inicial, $p(\theta)$, en lugar de la distribución final, $p(\theta \, | \, y, \mathbf{x})$, después de haber observado datos $y$ obtenidos bajo las condiciones definidas por los valores de $\mathbf{x}$. Puesto que en el caso de diseño experimental los datos $y$ no han sido observados, puede pensarse en calcular el valor esperado de dicha expresión con respecto a $p(y \, | \, \mathbf{x})$, obteniendo así
+\begin{equation} \label{eq:KLdivergence3}
+	\E_{p(y | \mathbf{x})} \left[ KL(p(\theta \, | \, y, \mathbf{x}) \, || \, p(\theta)) \right] = \int_{\mathcal{Y}} \int_{\Theta} \log \left( \frac{p(\theta \, | \, y, \mathbf{x})}{p(\theta)} \right) p( \theta, y \, | \, \mathbf{x} ) \,d\theta \, dy,
+\end{equation}
+donde se utiliza el hecho de que $p( \theta, y \, | \, \mathbf{x} ) = p( \theta \, | \, y, \mathbf{x} ) \, p(y \, | \, \mathbf{x})$. Esta expresión es la que \cite{bernardo_informationasutility} denomina la \textit{información esperada acerca de $\theta$ obtenida al haber utilizado el diseño $\mathbf{x}$}. \\
+
+
+Una estrategia es utilizar la esperanza (\ref{eq:KLdivergence3}) como función de utilidad con el propósito de maximizar la información obtenida al pasar de la distribución inicial a la distribución final de $\theta$. Para continuar trabajando con funciones de pérdida es posible multiplicar esta expresión por -1, lo cual se refleja cambiando el orden del numerador y el denominador dentro del logaritmo para obtener entonces
+\begin{equation} \label{eq:SIL_opt_full2}
+	\Phi_{\text{SIL}} (\mathbf{x}) = \int_{\mathcal{Y}} \int_{\Theta} \log \left( \frac{p(\theta )}{p(\theta \, | \, y, \mathbf{x})} \right) p( \theta, y \, | \, \mathbf{x} ) \,d\theta \,dy.
+\end{equation}
+Así pues minimizar la pérdida esperada (\ref{eq:SIL_opt_full2}) es equivalente a maximizar la divergencia esperada de Kullback-Leibler entre las distribuciones inicial y final de $\theta$. Alternativamente, dado que la distribución inicial $p(\theta)$ no depende del diseño $\mathbf{x}$, puede pensarse en omitir este término y obtener la pérdida esperada
+\begin{equation} \label{eq:D_opt_full2}
+	\Phi_{\text{D}} (\mathbf{x}) = \int_{\mathcal{Y}} \int_{\Theta} \log \left( \frac{1}{p(\theta \, | \, y, \mathbf{x})} \right) p( \theta, y \, | \, \mathbf{x} ) \,d\theta \,dy.
+\end{equation}
+
+Un diseño óptimo bajo dicha función de pérdida se conoce como $D$~-óptimo; en general, dicha función da lugar a la $D$~-optimalidad Bayesiana. El nombre se debe a la similitud con la contraparte clásica, la cual también cuenta con su propia $D$~-optimalidad. En ese caso el criterio de optimalidad es minimizar el determinante de la matriz de información de Fisher del modelo, (\ref{eq:fisher_info_matrix}), que da lugar a la minimización de la varianza. \citet{chaloner_verdinelli_doe} argumentan que, en el caso de regresión normal clásico, la $D$~-optimalidad Bayesiana es equivalente a minimizar el determinante de la matriz de información de Fisher del modelo, más la matriz de precisión inicial de $\theta$. \\
+
+
+Existen otras elecciones de funciones de pérdida que dan lugar a distintas familias de optimalidad 	alfabética similares a las de la contraparte clásica. Éstas son revisadas con mayor detalle por \cite[Capítulo 2.3]{chaloner_verdinelli_doe}.
+
+
+%Otra función popular de pérdida es la \textit{pérdida en error cuadrático medio} (SEL por sus siglas en inglés), definida como
+%\begin{equation} \label{eq:SEL}
+%	l_{\text{SEL}} (\mathbf{x}, y, \theta) = \int_{\mathcal{X}} \left[ \mu(x) - \E [\mu(x) \, | \, y, \mathbf{x}] \right]^2 \, dx.
+%\end{equation}
+
+
+
+
+\section{Método ACE}
+
+
+Si bien la teoría detrás del diseño Bayesiano de experimentos ha sido estudiada desde hace varias décadas, el desarrollo de métodos computacionales eficientes que permitan encontrar diseños que satisfagan (\ref{eq:opt_doe_1}) ha avanzado poco, por lo menos hasta años recientes. Por lo general se conocían soluciones a casos con características particulares. Sin embargo en los últimos años se ha logrado abordar, por lo menos en parte, este problema. \\
+
+
+%\subsection{Resumen del método} \label{sec:ACE_overview}
+
+\cite{Woods_ACE} proponen su método de \textit{intercambio aproximado de coordenadas} (ACE por sus siglas en inglés), que logra encontrar diseños óptimos para una gran variedad de problemas de diseño experimental. Además tiene la ventaja de no remontarse a estimaciones asintóticas de la distribución final o de la función de pérdida. La idea general es que el usuario ingrese un diseño inicial, cuyas entradas serán recorridas una por una, decidiendo en cada iteración si la entrada en cuestión debe o no ser cambiada y, en tal caso, por qué otra cantidad. \\
+
+
+Consideremos el problema de diseñar un experimento de $n$ ensayos y $p$ covariables, donde tanto $n$ como $p$ se consideran fijas y conocidas. La matriz de diseño $X = (x_{ij})$ es entonces de dimensión $n \times p$; el algoritmo ACE recorrerá cada una de sus $np$ entradas como sigue. Para cada $i=1,...,n$ y $j=1,...,p$, sea $\mathbf{x}_{ij}(x)$ el diseño igual a $\mathbf{x}$ pero habiendo sustituido la $ij$-ésima entrada de $\mathbf{x}$ por $x \in \mathcal{X}_j$, el espacio muestral de la $j$-ésima covariable. Considere ahora la pérdida esperada asociada a este diseño, la cual denotaremos por $\Phi_{ij}(x \, | \, \mathbf{x} )$ para enfatizar el hecho de que se está partiendo de un diseño original $\mathbf{x}$. Se está pensando a la pérdida esperada como función solo de la coordenada $ij$-ésima del diseño. \\
+
+
+
+El método ACE intenta minimizar $\Phi_{ij}(x \, | \, \mathbf{x} )$ para cada $i$ y $j$. Esto es, dada una entrada de la matriz de diseño el método propone pensar en las demás entradas del diseño como fijas y luego encontrar el valor de dicha coordenada que minimice la pérdida esperada de todo el diseño. En principio ello se lograría determinando analíticamente la forma funcional de $\Phi_{ij}(x \, | \, \mathbf{x} )$, y posteriormente minimizando dicha función (ya sea analíticamente o numéricamente) para cada entrada. Esto es prácticamente imposible de realizar por la  complejidad analítica de la pérdida esperada: manipular $\Phi(\mathbf{x})$ para obtener $\Phi_{ij}(x \, | \, \mathbf{x} )$ para cada $i,j$ y $x$ no es factible. \\
+
+
+La forma en la que el método supera esta complicación es escoger, para cada $i,j$, $m$ puntos distintos $x_1, x_2, ..., x_m \in \mathcal{X}_j$.\footnote{\cite{Woods_ACE} dividen $\mathcal{X}_j$ en $m$ intervalos y escogen aleatoriamente un punto dentro de cada uno de ellos.} Con ellos se obtienen $m$ aproximaciones de Monte Carlo a la pérdida esperada, $\tilde{\Phi}_{ij}( x_1 \, | \, \mathbf{x} )$, $\tilde{\Phi}_{ij}( x_2 \, | \, \mathbf{x} ), ...,$ $\tilde{\Phi}_{ij}( x_m \, | \, \mathbf{x} )$, mediante
+\begin{equation} \label{eq:MonteCarloApprox}
+	\tilde{\Phi}_{ij}(x_l \, | \, \mathbf{x} ) = \frac{1}{N} \sum_{k=1}^{N} l(\mathbf{x}_{ij}(x_l), y_k, \theta_k), \quad l=1,...,m.
+\end{equation}
+Aquí, $\mathbf{x}_{ij}(x_l)$ se refiere al diseño original pero habiendo cambiado la $ij$-ésima entrada por $x_l$, $l=1, ..., m$, $(y_k, \theta_k) \sim p( \theta, y \, | \, \mathbf{x})$ y $N$ es grande (usualmente alrededor de 20,000). Para generar el vector $(y, \theta)$ se aprovecha el hecho de que $p( \theta, y \, | \, \mathbf{x}) = p( y \, | \, \theta, \mathbf{x}) \, p(\theta \, | \, \mathbf{x})$, y ambas distribuciones son totalmente conocidas. Más detalles sobre este tipo de estimaciones se pueden encontrar en el Apéndice \ref{chapter:appendixBayesiana}.  \\ 
+
+
+De esta manera para cada entrada $i,j$ del diseño inicial $\mathbf{x}$ se tienen $m$ pares $\left\{ x_l, \, \tilde{\Phi}_{ij}(x_l \, | \, \mathbf{x} ) \right\}_{l=1}^{m}$. Con ellos es posible estimar $\Phi_{ij}(x \, | \, \mathbf{x} )$ mediante algún modelo estadístico. Particularmente \cite{Woods_ACE} proponen emplear un modelo de regresión de proceso Gaussiano, el cual deriva en una estimación $\tilde{\Phi}_{ij}(x \, | \, \mathbf{x} )$ denominada \textit{emulador Gaussiano} que pretende realizar una interpolación estadística de los puntos. Esto se discute con mayor detalle en el Apéndice \ref{chapter:appendixGaussianProcess}, aunque por el momento basta decir que el método logra así estimar, para cada entrada $i,j$, la pérdida esperada como función de dicha entrada, $\tilde{\Phi}_{ij}(x \, | \, \mathbf{x} )$. \\
+
+
+
+Habiendo obtenido la estimación $\tilde{\Phi}_{ij}(x \, | \, \mathbf{x} )$ para $i,j$ el siguiente paso es encontrar aquella $x \in \mathcal{X}_j$ que la minimice. Para este propósito \cite{Woods_ACE} proponen generar 10,000 puntos uniformemente espaciados en $\mathcal{X}_j$ y escoger aquel que minimice $\tilde{\Phi}_{ij}(x \, | \, \mathbf{x} )$. De esta forma se obtiene $x^{*}$ para cada entrada $i,j$ del diseño inicial. \\
+
+
+
+Como los autores discuten no es sensato simplemente reemplazar $\mathbf{x}_{ij}$ por $x^{*}$, puesto que la obtención de esta última está sujeta a errores en la estimación de Monte Carlo (\ref{eq:MonteCarloApprox}) y en el ajuste del emulador. Sin embargo tampoco es factible emplear métodos que verifiquen la bondad de ajuste del modelo de proceso Gaussiano para cada $i,j$, pues esto incrementaría drásticamente el costo computacional del método. Por ello para minimizar estos errores se realiza un procedimiento de aceptación/rechazo, cuyo pseudocódigo se encuentra descrito más adelante en el Código \ref{code:ACE_AcceptReject}. \\
+
+
+Básicamente \cite[págs. 4,~6]{Woods_ACE} llevan a cabo una prueba de $t$ de Student para determinar si la diferencia entre $\tilde{\Phi}_{ij}( x^{*} \, | \, \mathbf{x} )$ y $\tilde{\Phi}( \mathbf{x} )$ es significativa. Particularmente los autores proponen lo siguiente:
+\begin{enumerate}
+\item Simular $\tilde{B}$ observaciones independientes de $p(y, \theta \, | \, \mathbf{x}_{ij}(x^{*}))$ y obtener a partir de ellas $\tilde{B}$ estimaciones de $\tilde{\Phi}_{ij}( x \, | \, \mathbf{x} )$, denominadas $M_1$, $M_2, ...$, $M_{\tilde{B}}$.
+\item Simular $\tilde{B}$ observaciones independientes de $p(y, \theta \, | \, \mathbf{x})$ y obtener a partir de ellas $\tilde{B}$ estimaciones de $\tilde{\Phi}( \mathbf{x} )$, denominadas $O_1$, $O_2, ...,$ $O_{\tilde{B}}$.
+\item Suponer que $M_k \sim \N (\mu_M, \sigma^2)$ y $O_k \sim \N (\mu_O, \sigma^2)$ para cada \newline $k=1,2,...,\tilde{B}$.
+\item Obtener 
+\begin{equation} \label{eq:t_test_statistic}
+	T = \frac{ \bar{O} - \bar{M} }{ \sqrt{\frac{2}{\tilde{B}}} \tilde{\sigma} },
+\end{equation}
+donde
+	\begin{enumerate}
+	\item $\bar{M} = \frac{1}{\tilde{B}} \sum_{k=1}^{\tilde{B}} M_k$ y $\bar{O} = \frac{1}{\tilde{B}} \sum_{k=1}^{\tilde{B}} O_k$ son las medias muestrales de las observaciones simuladas $M$ y $O$, respectivamente.
+    \item $\tilde{\sigma}^2 = \frac{1}{ 2\tilde{B} - 2 } \left[ \sum_{k=1}^{\tilde{B}} (M_k - \bar{M})^2 + \sum_{k=1}^{\tilde{B}} (O_k - \bar{O})^2 \right]$ es la varianza muestral combinada (\textit{pooled variance} en inglés) de las observaciones simuladas.
+	\end{enumerate}
+\item Calcular
+\begin{equation} \label{eq:accept_reject_probability}
+	\hat{p} = P(U \geq T),
+\end{equation}
+donde $U \sim t_{(2\tilde{B}-2)}$.
+\item Actualizar el diseño inicial $\mathbf{x}$ al diseño modificado $\mathbf{x}_{ij}(x^{*})$ con probabilidad $\hat{p}$. 
+\end{enumerate}
+
+
+%\hat{p} = 1 - t_{ \left( 2\tilde{B} - 2 \right) } (T) donde $t_{ \left( 2\tilde{B} - 2 \right) } (\cdot)$ se refiere a la función de distribución de una $t$ de Student con $2\tilde{B}-2$ grados de libertad.
+
+
+La ecuación (\ref{eq:t_test_statistic}) es casi igual a la variable pivotal empleada para generar un intervalo de confianza de la diferencia de medias de dos muestras independientes provenientes de un modelo normal, con varianza igual y desconocida. La diferencia radica en que aquí no se incluye la diferencia de las medias poblacionales en el numerador, como si se supusiera que ésta es cero. Sin este supuesto, dicha variable pivotal seguiría una distribución $t$ de Student con $2\tilde{B}-2$ grados de libertad. Lo que los autores pretenden es dar por cierta la hipótesis de igualdad de medias, en cuyo caso la variable pivotal mencionada se convierte en el estadístico de la ecuación (\ref{eq:t_test_statistic}), y obtener la probabilidad de que la media de las observaciones simuladas del diseño modificado $\bar{M}$ sea menor que la del diseño original $\bar{O}$. Posteriormente se actualiza el diseño precisamente con dicha probabilidad. \\
+
+
+
+
+En esencia ese es el método ACE. El usuario ingresa un diseño inicial, el método recorre cada entrada de éste y encuentra cuál es el argumento dentro del espacio muestral de la covariable en cuestión que minimiza la pérdida esperada del diseño completo. Esto se realiza aproximando la pérdida esperada como función de la entrada en cuestión vía un emulador y minimizando este último. Finalmente se emplea un algoritmo de aceptación/rechazo basado en una prueba $t$ para diferencia de medias para decidir si cambiar la entrada original por la nueva. \\
+
+%El único tema que no se ha discutido con mayor profundidad es el del ajuste del modelo de regresión de proceso Gaussiano para obtener el emulador $\tilde{\Phi}_{ij}(x \, | \, \mathbf{x})$, lo cual se hace a continuación. \\
+
+
+
+
+Cabe mencionar que la convergencia del método se determina en el mismo espíritu que el utilizado para los métodos MCMC. En particular se utilizan análisis gráficos que comparan el número de iteración con alguna aproximación a la pérdida esperada del diseño en cuestión, $\tilde{\Phi}(\mathbf{x})$. Dicha aproximación generalmente se obtiene mediante métodos de Monte Carlo; por ejemplo, siguiendo la notación de la sección anterior, se puede estimar
+\begin{equation*}
+	\Phi_l(\mathbf{x}) = \int_{\mathcal{Y}} \int_{\Theta} l(\mathbf{x}, y, \theta) p( \theta, y \, | \, \mathbf{x}) d\theta \, dy
+\end{equation*}
+con la ecuación (\ref{eq:MonteCarloApprox}). \\
+
+
+
+El Código \ref{code:ACE_Method} muestra los pasos básicos del método ACE, y fue tomado de \citep{Woods_etal}.\footnote{En el algoritmo se emplea $Q$ en lugar de $m$. para tener consistencia con el algoritmo de aceptación/rechazo.} Este método será utilizado para encontrar diseños óptimos para algunos ejemplos en el Capítulo \ref{chapter:doe_para_glms}, donde se ejemplificará su implementación y se determinará la convergencia a la solución.
+
+\vskip 0.5cm
+
+\begin{lstlisting}[style=thesis, escapeinside={(*}{*)}, caption={Método de intercambio aproximado de coordenadas (ACE), propuesto por \cite{Woods_ACE}.}, captionpos=b, label=code:ACE_Method]
+ Input : Diseño inicial (*$\mathbf{x} = (\mathbf{x}_{ij})$*) de tamaño (*$n \times p$*).
+         Enteros positivos (*$Q$*) y (*$B$*)
+ Output: Diseño (*$\Phi$*)-óptimo
+ 
+ repeat{ # Hasta convergencia
+  for(i in 1:(*$n$*))
+   for(j in 1:(*$p$*))
+    Genera (*$Q$*) puntos (*$x_1, ..., x_Q$*) en (*$\mathcal{X}_j \subset \mathbb{R}$*)
+       for(k in 1:Q)
+        Evalúa (*$\tilde{\Phi}_{ij} ( x_k \, | \, \mathbf{x} ) $*) mediante una aproximación de Monte Carlo (*(\ref{eq:MonteCarloApprox})*) con una muestra de tamaño (*$B$*)
+       end
+      Construye un emulador unidimensional (*$\tilde{\Phi}(x)$*) utilizando la ecuación (*\ref{eq:GPemulator}*)
+      Encuentra (*$\hat{x} = \argmin_{x \in \mathcal{X}_j} \tilde{\Phi}(x)$*) generando 10,000 puntos uniformemente distribuidos en (*$\mathcal{X}_j$*)
+      Encuentra (*$\hat{p} = \hat{p}(\mathbf{x}, \hat{x})$*) utilizando el Código (*\ref{code:ACE_AcceptReject}*)
+      Define (*$\mathbf{x}_{ij} = \hat{x}$*) con probabilidad (*$\hat{p}$*)
+   end
+  end
+ }
+\end{lstlisting}
+
+\vskip 0.5cm
+%\newpage
+
+\begin{lstlisting}[style=thesis, escapeinside={(*}{*)}, caption={Algoritmo de aceptación/rechazo utilizado para encontrar la probabilidad de aceptación de la línea 14 del Código \ref{code:ACE_Method}, tomado de \citep{Woods_etal}.}, captionpos=b, label=code:ACE_AcceptReject],
+ Input : Diseño actual (*$\mathbf{x} = (\mathbf{x}_{ij})$*)
+         Coordenada propuesta (*$\hat{x}$*)
+         Entero positivo (*$\tilde{B}$*)
+ Output: Probabilidad (*$\hat{p}$*) de aceptación de la nueva coordenada
+ 
+ Define (*$\mathbf{x}_p$*) como el diseño obtenido al reemplazar la (*$ij$*)-ésima entrada de (*$\mathbf{x}$*) con (*$\hat{x}$*)
+ for(k in 1:(*$\tilde{B}$*))
+  Genera (*$\tilde{\theta} \sim p(\theta)$*)
+  Genera (*$y_1 \sim p(y \, | \, \theta, \mathbf{x}_p)$*) y (*$y_2 \sim p(y \, | \, \theta, \mathbf{x})$*)
+  Define (*$M_k = l(\mathbf{x}_p, y_1, \tilde{\theta})$*) y (*$O_k = l(\mathbf{x}, y_2, \tilde{\theta})$*)
+ end
+ Supón que (*$M_k \sim \N (\mu_M, \sigma^2)$*) y (*$O_k \sim \N (\mu_O, \sigma^2)$*)
+ Considerando (*$ M_1, ..., M_k $*) y (*$ O_1, ..., O_k $*) como si fueran datos, calcula (*$\hat{p}$*) con la ecuación (*(\ref{eq:accept_reject_probability})*)
+\end{lstlisting}
+
+
+
+
+\section{Comentarios finales}
+
+
+El enfoque Bayesiano es idóneo para el problema de diseño experimental, ya que este último se puede plantear de manera natural como un problema de decisión. Por lo mismo, es posible encontrar en forma genérica la solución de cualquier problema de esta índole. Sin embargo ésta involucra el cálculo de funciones de pérdida que suelen ser sumamente complejas y de integrales de dimensión alta. Es por ello que la investigación de diseño Bayesiano de experimentos en años recientes ha estado enfocada a encontrar métodos numéricos que permitan sobrepasar estas complicaciones.\\
+
+
+El método ACE es una de las más recientes de estas alternativas. La complejidad del algoritmo es evidente, pues combina y adapta una variedad de herramientas estadísticas, como el contraste de hipótesis para diferencia de medias y los modelos de regresión de procesos Gaussianos. Sin embargo, en el fondo éste simplemente trata de determinar, entrada por entrada, si las coordenadas del diseño inicial se pueden mejorar. \\
+
+
+
+Algo que se debe de notar es la enorme cantidad de argumentos iniciales que recibe dicho método ($\mathbf{x}, B, Q, \tilde{B}$, la función de pérdida, las distribuciones iniciales de los parámetros desconocidos). Ello significa que no solo el método es sofisticado en sí, sino que implementarlo también lo es. Esto se hará evidente en el próximo capítulo, pero establece el difícil acceso a algoritmos de punta que permitan encontrar diseños óptimos con mayor flexibilidad.
+
+
+
+
+%-----
+
+
+
+%Para determinar si una cierta entrada del diseño inicial será o no cambiada, el método considera fijas las demás entradas y piensa a la pérdida esperada como función solo de la entrada en cuestión. La idea es determinar cuál es el valor de dicha entrada que minimiza la pérdida esperada, suponiendo fijas las demás entradas. \\
+%Ahora bien, para determinar si la entrada del diseño en cierta iteración debe o no cambiarse, el método piensa a la función de pérdida como función solo de esa coordenada. Después se calcula el argumento que minimiza dicha función de pérdida. Debido a que el trabajo computacional para encontrar ese valor es por demás intenso, el método hace uso de \textit{emuladores} que permitan aproximar la pérdida esperada. En el campo de experimentos computacionales, un emulador es un modelo estadístico que aproxima la salida de un proceso o código de computadora. Los emuladores más populares en la literatura son los Gaussianos, los cuales son utilizados por el método ACE para aproximar la pérdida esperada y así minimizarla. \\
+%Para más información sobre emuladores, se recomienda revisar \citep{rasmussen_and_williams, sacks_etal}. \\
+%El método ACE recorre cada entrada del diseño inicial, y en cada iteración construye un emulador unidimensional $\hat{\Phi}(x)$ para $\tilde{\Phi}_{ij}(x \, | \, \mathbf{x} )$. Posteriormente se encuentra el valor $\hat{x}$ que minimice dicho emulador. Si se introdujera este valor al diseño en lugar de la coordenada original, la pérdida esperada de éste debería disminuir. Sin embargo, dado que el emulador solo es una aproximación de la pérdida esperada, en lugar de solo intercambiar la coordenada se lleva a cabo un procedimiento de aceptación y rechazo. La probabilidad con la que se acepta $\hat{x}$ se encuentra con el método del Código \ref{code:ACE_AcceptReject}. \\
+%Aún hay un par de detalles más que discutir acerca del método ACE. En la línea 14 del Código \ref{code:ACE_Method} se utiliza un emulador Gaussiano, el cual está dado por la media posterior (que es una función) del mismo emulador, es decir,
+
+%En el caso de los dos últimos parámetros, $\rho$ y $\xi$, estos tienen el propósito de mejorar la estabilidad del algoritmo y son estimados mediante máxima verosimilitud \citep[p.~97]{Woods_etal}.

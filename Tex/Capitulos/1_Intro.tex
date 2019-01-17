@@ -1,0 +1,62 @@
+\chapter{Introducción} \label{chapter:intro}
+
+
+\epigraph{\textit{Statistics is the grammar of science.}}{--- Karl Pearson}
+
+
+La idea de que un estadístico es aquel a quien se le proporcionan datos para que los analice no podría estar más lejos de la realidad. Para que un estudio se lleve a cabo satisfactoriamente un estadístico debe estar involucrado desde antes de la recolección de los datos. Más aún, el trabajo del estadístico no termina con la conclusión del estudio. La investigación e innovación científica no es estática ni aislada, sino un proceso de autocorrección en el cual la experiencia previa guía y sugiere el camino a seguir \citep{box_liu_helicopter}. \\
+
+
+El diseño de experimentos se refiere a la selección de todos los aspectos relevantes de un experimento y se realiza antes de la recolección de los datos. Debido a esto el paradigma Bayesiano resulta idóneo, ya que ofrece una manera de incorporar conocimientos previos al análisis \citep{bernardo_smith,notas_bayes_egp,notas_bayes}. Sin embargo, una de las desventajas de utilizar el enfoque Bayesiano es la latente complejidad computacional \citep{casella_george,geman_y_geman}. En el caso del diseño de experimentos ésta se traduce en la dificultad de evaluar funciones de pérdida sofisticadas que engloben los objetivos del experimento, así como integrales de dimensión sumamente alta \citep{Woods_etal}. \\
+
+
+\cite{chaloner_verdinelli_doe} publicaron un artículo de revisión que ha servido como punto de referencia para el diseño Bayesiano de experimentos. Sin embargo durante un tiempo hubo un progreso práctico poco sustancial en este respecto, logrando encontrar soluciones solamente a problemas particulares. No obstante los últimos años han visto el surgimiento de algoritmos complejos que pretenden atacar estos problemas y mantener una eficiencia computacional tolerable. Hoy en día el método de \textit{Intercambio Aproximado de Coordenadas} (ACE por sus siglas en inglés) de \cite{Woods_ACE} se postula como la opción más efectiva para resolver problemas de diseño Bayesiano de experimentos, logrando encontrar diseños óptimos para una variedad de modelos y con la opción de personalizar la función de pérdida. Sin embargo su eficiencia depende altamente del número de ensayos y de la función de pérdida empleada. Más aún, su implementación no es trivial, lo que lo hace poco accesible para el público en general. \\ 
+
+
+
+
+El diseño Bayesiano de experimentos generalmente aprovecha modelos populares y conocidos, como los modelos lineales generalizados \citep{nelder_wedderburn}. Estos son de particular interés porque permiten modelar una gran variedad de fenómenos, pero a la vez han sido estudiados con detalle \citep{glm_bayesian_view, nelder_glm, montgomery_glm}. El método ACE es más sencillo de implementar si se utiliza en conjunto con este tipo de modelos, lo que se traduce en un menor costo computacional, particularmente si se utilizan las funciones de pérdida que éste ya incluye. \\
+
+
+
+
+Hoy en día disciplinas como la ingeniería, la medicina, y las ciencias sociales realizan experimentos estadísticamente diseñados \citep{fisher_doe, Woods_etal_2006}. Por lo tanto avances en la literatura sobre diseño experimental se traducen en una mayor variedad de diseños al alcance de más investigadores, incrementando la validez y reproducibilidad de los estudios científicos. Es por ello que impulsar la investigación sobre diseño de experimentos es imperativo, más aún considerando que siguen existiendo multiplicidad de complicaciones prácticas que restringen las opciones disponibles al diseñar un experimento. \\ 
+
+
+
+El propósito de esta tesis es doble. Por un lado se desarrollarán los elementos teóricos detrás del diseño Bayesiano de experimentos. Esto es importante porque la gran mayoría de la literatura al respecto supone que el lector tiene conocimientos avanzados sobre diseño experimental y Estadística Bayesiana. Por lo mismo es difícil encontrar fuentes que contengan una revisión razonablemente completa del tema en cuestión. Más aún, se supondrá que el propósito último es modelar la relación entre algunas de las covariables del experimento y la variable respuesta mediante un modelo lineal generalizado. \\
+
+
+
+Por otro lado se implementará el método ACE para resolver desde un enfoque Bayesiano dos problemas de diseño experimental, con el objetivo de constatar la eficacia de dicho algoritmo. En particular se replicarán dos de los resultados de \cite{Woods_etal}, los cuales suponen que la relación entre las covariables y la respuesta se describe mediante un modelo lineal generalizado. En ambos ejemplos se emplearán tanto las distribuciones iniciales propuestas por los autores como distribuciones diferentes, y además en el segundo experimento se utilizará también una función de pérdida distinta.
+
+
+
+
+\section{Estructura de la tesis}
+
+
+En el Capítulo \ref{chapter:bayesiana} se plantean los fundamentos de la Teoría de la Decisión que dan lugar a la Estadística Bayesiana. Para ello se discuten las limitaciones del enfoque clásico o frecuentista, se habla de problemas de decisión, y se discute su solución. Además se habla de la importancia del Teorema de Bayes, así como de la Estadística Bayesiana en la práctica. También se discute la complejidad computacional inherente al cálculo de la distribución final, y en el Apéndice \ref{chapter:appendixBayesiana} se muestran algunos de los métodos computacionales más populares para sobrepasar dicha dificultad. \\
+
+
+
+En el Capítulo \ref{chapter:glms} se derivan los modelos lineales generalizados desde la perspectiva de componentes sistemática y aleatoria. Se hace particular énfasis en los modelos de regresión lineal, logística, y Poisson, los cuales se estudian a detalle 
+en el mismo capítulo. Se discute también la estimación de los parámetros desde la perspectiva Bayesiana, particularmente para el caso de regresión lineal. \\
+
+%En el Apéndice \ref{chapter:appendixGLMs}) se discute otro modelo lineal generalizado popular.  \\
+
+
+
+En el Capítulo \ref{chapter:design} se formula el problema de encontrar un diseño óptimo como uno de decisión utilizando las herramientas del Capítulo \ref{chapter:bayesiana}. Así pues, se deduce la solución genérica de cualquier problema de diseño experimental y se mencionan las dificultades prácticas de encontrar dicha solución. También se discute sobre la importancia de la función de pérdida o utilidad, además de que se revisan las elecciones más populares en la literatura. Finalmente se revisa con detalle el método ACE de \cite{Woods_ACE}.\\
+
+
+
+En el Capítulo \ref{chapter:doe_para_glms} se reproducen dos ejemplos de diseño Bayesiano de experimentos para modelos lineales generalizados tomados de \cite{Woods_etal}. El primero supone un modelo de regresión logística y el segundo uno de regresión Poisson. Se utilizarán funciones iniciales para los parámetros diferentes a las propuestas por los autores para resaltar la importancia de éstas, y además para el segundo caso se utilizará una función de pérdida diferente también. El código utilizado para este capítulo se incluye en el Apéndice \ref{chapter:appendixCode}. \\
+
+
+
+
+En el Capítulo \ref{chapter:conclusiones} se da un resumen global de la tesis y se discuten los principales hallazgos, particularmente los referentes al Capítulo \ref{chapter:doe_para_glms}. Además se comentan las principales dificultades de la implementación del método ACE, así como sugerencias para posibles investigaciones futuras. \\
+
+\newpage
+

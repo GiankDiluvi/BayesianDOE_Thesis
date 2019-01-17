@@ -1,0 +1,237 @@
+Este apéndice tiene como propósito desarrollar con mayor profundidad los métodos computacionales Bayesianos más actuales que se mencionaron en el Capítulo \ref{chapter:bayesiana}, particularmente aquellos que tienen relevancia en la implementación del método ACE discutido en el Capítulo \ref{chapter:design}. Puntualmente se discutirán varios métodos de Monte Carlo. Cabe mencionar que este apéndice no pretende demostrar que dichos algoritmos convergen, sino exponerlos para referencias en la tesis. Si el lector está interesado en dichas demostraciones se recomienda revisar las notas de \cite{notas_mcmc_egp}, las cuales se seguirán de cerca, así como la bibliografía ahí citada \\
+
+%algunas aproximaciones asintóticas, varios métodos de Monte Carlo y también algunos algoritmos pertenecientes a la familia MCMC. Cabe mencionar que este apéndice no pretende demostrar que dichos algoritmos convergen, sino exponerlos para referencias en la tesis. Si el lector está interesado en dichas demostraciones, se recomienda altamente revisar las notas de \cite{notas_mcmc_egp}, las cuales se seguirán de cerca; además, en ellas se puede encontrar bibliografía más avanzada sobre el tema.\\
+
+
+
+\section*{Consideraciones iniciales}
+
+Supondremos que contamos con una muestra aleatoria $X = (X_1, ..., X_n)^T$ de una variable aleatoria con función de probabilidad generalizada $f(x \, | \, \theta)$, donde $\theta \in \Theta$ es un parámetro (de cualquier dimensión) desconocido, pero la forma de $f$ se supone totalmente conocida. La distribución inicial de $\theta$ será $p(\theta)$, la cual es totalmente conocida.\\
+
+Al estimador de máxima verosimilitud de $\theta$ se le denotará por $\hat{\theta}$, y supondremos que es tal que
+\begin{equation*}
+	\nabla \ell (\hat{\theta}) = 0, 
+\end{equation*}
+donde $\ell$ es la log-verosimilitud del modelo y la diferenciación se toma con respecto a $\theta$. 
+
+%La información \textit{observada} de Fisher es
+%\begin{equation}
+	%V(\hat{\theta}) = \left[ -\nabla^2 \ell (\hat{\theta}) \right]^{-1},
+%\end{equation}
+%donde $\nabla^2 \ell$ se refiere a la matriz Hessiana de la log-verosimilitud y la diferenciación de nuevo es con respecto a $\theta$.\footnote{La matriz de información de Fisher toma el valor esperado en lugar de evaluar en el estimador de máxima verosimilitud.}
+
+
+%\section{Aproximación Normal asintótica}
+
+%Esta aproximación propone estimar la distribución final de $\theta$. Como \cite[Capítulo 2.1]{notas_mcmc_egp} muestra, bajo condiciones de regularidad como las ya mencionadas se tiene que
+%\begin{equation} \label{eq:aprox_normalA3}
+	%p( \theta \, | \, x ) \approx \N \left( \theta \, | \,	 \hat{\theta}, V(\hat{\theta}) \right).
+%\end{equation}
+
+%Si bien la aproximación es relativamente buena en algunos casos, es de notar que asume que la distribución final satisface todas las propiedades de una Normal, como simetría y colas no pesadas. Si esto no es válido, muchas veces es conveniente realizar alguna transformación al parámetro para que en la nueva escala éste sí pueda modelarse con este modelo razonablemente bien.
+
+
+%\section{Aproximación de Laplace}
+
+
+%La aproximación de Laplace permite estimar integrales genéricas. La idea es escribir
+%\begin{align*}
+% I := \int f(\theta) '\ d\theta = \int q(\theta) \exp \left\{ -nh(\theta) \right\} d\theta.
+%\end{align*}
+%Claramente hay muchas maneras de elegir $q$ y $h$. Se define, para %$\theta \in \Theta$, la matriz
+%\begin{align*}
+%\Sigma(\theta) = \left[ -\nabla^2 h (\theta) \right]^{-1}.
+%\end{align*}
+%Además, se supone que $h$ tiene un mínimo en $\hat{\theta}$. Análogo a como en la aproximación normal asintótica, el mínimo debe ser tal que $\nabla h ( \hat{\theta} ) = 0$. Así, el método de Laplace estima $I$ mediante
+%\begin{equation} \label{eq:aprox_laplace}
+	%\hat{I} = q( \hat{\theta} ) \, \left( \frac{2 \pi}{n} \right)^{\frac{d}{2}} \, \left| \Sigma( \hat{\theta} ) \right|^{\frac{d}{2}} \, \exp \left\{ -nh( \hat{\theta} ) \right\},
+%\end{equation}
+%donde $d$ es la dimensión de $\theta$.
+
+
+
+%\subsection*{Forma exponencial}
+
+%La versión anterior de la aproximación de Laplace se conoce como la versión \textit{estándar}, y se mencionó que no es única porque $h$ y $q$ pueden escogerse de muchas formas. Sin embargo, hay una elección particular de éstas que lleva el nombre de forma \textit{exponencial}: cuando $q \equiv 1$. En general, esto siempre se puede hacer escribiendo
+%\begin{align*}
+%I = \int f(\theta) \, d\theta = \int \exp \left\{ -n \left[ -\frac{1}{n} \log \left( f(\theta) \right) \right] \right\} d\theta.
+%\end{align*}
+%En algunos casos la forma de $f$ se presta para este tipo de aproximaciones, aunque de cualquier manera siempre se puede hacer fácilmente así. La fórmula con la que se aproxima $I$ es  la misma que (\ref{eq:aprox_laplace}), pero sustituyendo $q \equiv 1$.
+
+
+
+
+
+\section{Métodos de Monte Carlo}
+
+
+Los métodos de Monte Carlo son una vasta familia de algoritmos que utilizan la generación repetida de números aleatorios para producir valores numéricos de interés. Generalmente el propósito es estimar cantidades que, aunque pueden ser determinísticas en principio, estén sujetas a alguna interpretación probabilística. 
+La idea que subyace en los orígenes de los métodos de Monte Carlo es la siguiente. Sea $\theta \in \mathbb{R}^m$ un vector que interesa calcular y que habitualmente resulta de evaluar una función $H$ en un elemento $w$ de $\mathbb{R}^k$. Esto es,
+\begin{align*}
+	H: \mathbb{R}^k &\to \mathbb{R}^m \\
+                  w &\mapsto \theta.
+\end{align*}
+Si para cada vector $w$ es posible construir una distribución de probabilidad $p(u)$ en $\mathbb{R}^k$ que satisfaga que $\E [H(U)] = \theta$, entonces es posible simular una muestra aleatoria $u_1, u_2, ..., u_N$ y aproximar $\theta$ con
+\begin{equation*}
+	\hat{\theta} = \frac{1}{N} \sum_{k=1}^{N} H(u_k).
+\end{equation*}
+ 
+Una de las aplicaciones principales de dichos métodos es la estimación de integrales. Por ejemplo, sea $g: [a, b] \to \mathbb{R}$ una función acotada y considere
+\begin{equation*}
+	I = \int_{a}^{b} g(x) \, dx.
+\end{equation*}
+Note entonces que
+\begin{equation*}
+	I = (b-a) \int_{a}^{b} \frac{1}{b-a} g(x) \, dx = (b-a) \, \E[g(X)],
+\end{equation*}
+donde $X \sim \U(a, b)$, pues así su función de densidad es $f_X(x) = \frac{1}{b-a} \mathds{1}_{(a,b)}(x)$. Entonces es posible aproximar $I$ con
+\begin{equation*}
+	\hat{I} = \frac{b-a}{N} \sum_{k=1}^{N} g(x_k),
+\end{equation*}
+donde $x_1, ..., x_N \sim \U(a,b)$ de manera independiente. Por la Ley de los Grandes Números $\hat{I}$ converge a $I$ conforme $N$ tiende a infinito, por lo que basta escoger $N$ lo suficientemente grande para tener una aproximación de buena calidad. \\
+
+%$\hat{I} \underset{N \to \infty}{\to} I$
+
+
+Note que el problema de encontrar la integral definida de una función es puramente determinista y, sin embargo, se ofreció una solución (si bien aproximada) probabilística. La idea de pensar integrales como valores esperados es muy explotada por esta clase de métodos.
+
+
+
+\subsection{Muestreo por importancia}
+
+
+
+Otra aplicación muy popular de los métodos de Monte Carlo para estimar integrales es el muestreo por importancia. Si se desea estimar
+\begin{equation*}
+	I = \int_{\Theta} g(\theta) \, d\theta,
+\end{equation*}
+la idea es escribir
+\begin{equation*}
+	I = \int_{\Theta} \frac{ g(\theta) }{ s(\theta) } s(\theta) \, d\theta,
+\end{equation*}
+donde $s(\theta)$ es una densidad de probabilidades sobre $\Theta$, llamada \textit{distribución de muestreo}. Note que el ejemplo de la sección anterior es un caso particular de muestreo por importancia, en el que $\Theta = [a,b]$ y $s$ es la densidad de una variable aleatoria uniforme en $\Theta$. Análogamente, se debe generar una muestra aleatoria $\theta_1, ..., \theta_N$ de $s(\theta)$ y se aproxima $I$ a través de
+\begin{equation*}
+	I \approx \frac{1}{N} \sum_{i=1}^{N} \frac{ g(\theta_i) }{ s(\theta_i) }.
+\end{equation*}
+
+
+\citet[Capítulo~4.2]{notas_bayes_egp} discute las principales características de este estimador, como insesgamiento y varianza. Cabe resaltar que la elección de la distribución de muestreo es importante. En particular, ésta debe de tener una forma relativamente similar a la de $g$.
+
+
+
+
+\subsection{Muestreo-remuestreo}
+
+
+En muchas ocasiones (y ciertamente en problemas de inferencia Bayesiana) se requiere generar una muestra de una distribución que es conocida, salvo por cierta constante de normalización. Esto es, usualmente se conoce el \textit{kernel} de la distribución (por ejemplo de la final de $\theta$) sobre la cual se requiere hacer inferencia. En este caso, requerimos una muestra de
+\begin{equation*}
+	g(\theta) = \frac{ g_0(\theta) }{ \int g_0(\tilde{\theta}) \, d\tilde{\theta} },
+\end{equation*}
+donde la forma funcional de $g_0$ es totalmente conocida, pero no así la constante que aparece en el denominador. \\
+
+Más aún, es común que conozcamos alguna densidad $s(\theta)$ de la cual sí podemos obtener muestras con facilidad.\footnote{Desde luego que $s$ y $g$ tienden a ser similares.} El método de muestreo-remuestreo permite obtener una muestra de $g(\theta)$ a partir de $g_0(\theta)$ y una muestra de $s(\theta)$, y se divide en dos casos.
+
+
+\subsubsection*{Caso 1}
+
+
+En este caso se supone que existe una constante conocida $M > 0$ tal que $g_0(\theta) / s(\theta) \leq M$ para todo $\theta \in \Theta$. El Código \ref{code:Sampling_Resampling1} muestra el algoritmo de muestreo-remuestreo para este caso.
+
+\begin{lstlisting}[style=thesis, escapeinside={(*}{*)}, caption={Método de muestreo-remuestreo para el Caso 1.}, captionpos=b, label=code:Sampling_Resampling1]
+ Input : Funciones (*$g_0$*) y (*$s$*), y número máximo de iteraciones (*$N$*)
+ Output: Muestra de (*$g$*)
+ 
+ for(i in 1:N)
+  Genera (*$\tilde{\theta} \sim s(\theta)$*)
+  Genera (*$u \sim \U(0,1)$*)
+   if( (*$u \leq g_0(\tilde{\theta}) / M s(\tilde{\theta}) $*) )
+    Acepta (*$\tilde{\theta}$*) como una observación de (*$g(\theta)$*)
+   end
+ end
+\end{lstlisting}
+
+
+Note que no se puede determinar de antemano el tamaño de la muestra generada. Si se desea fijar este valor, entonces el ciclo \texttt{for} del Código \ref{code:Sampling_Resampling1} se debe reemplazar por un ciclo \texttt{while}, donde la condición de paro será que el tamaño de la muestra sea el requerido.
+
+
+
+\subsubsection*{Caso 2}
+
+
+En este caso no existe dicha $M$ (o no puede encontrarse). Una manera de obtener muestras de $g(\theta)$ es generar una muestra aleatoria $\theta_1, ..., \theta_N$ de $s(\theta)$ y definir
+\begin{equation*}
+	w_i = \frac{ v_i }{ \sum_{k=1}^{N} v_k },
+\end{equation*}
+con $v_i = g_0(\theta_i)/s(\theta_i)$ para cada $i=1,...,N$. Ahora podemos definir una distribución discreta de probabilidades en el conjunto $\{ \theta_1, ...,\theta_N \}$, de manera que $P(\theta = \theta_i) = w_i$ para cada $i$. Es posible probar que si se obtiene una observación $\tilde{\theta}$ de esta distribución discreta entonces ésta proviene (aproximadamente) de la distribución de interés, $g(\theta)$. Solo basta repetir este proceso hasta tener una muestra de tamaño suficiente.
+
+
+
+
+
+\section{Monte Carlo vía cadenas de Markov}
+
+Esta clase de métodos pretenden construir una cadena de Markov que converja a una distribución límite que sea igual a la distribución de la cual se quiere muestrear (la distribución final, por ejemplo).\\
+
+
+Uno de los algoritmos más populares de esta clase es el de Metropolis-Hastings (M-H). La idea es seleccionar una distribución de transición $Q( \theta^* \, | \, \theta )$ cuyo soporte sea al menos el de $p(\theta)$. Se define el \textit{cociente de Hastings} como
+\begin{equation} \label{eq:cociente_hastings}
+	\alpha(\theta^*, \theta) = \min \left\{ \frac{ p(\theta^* \, | \, x) \, Q(\theta \, | \, \theta^*) }{ p(\theta \, | \, x) \, Q(\theta^* \, | \, \theta) }, 1 \right\}.
+\end{equation}
+Dicho cociente siempre está entre 0 y 1, y servirá como la probabilidad de aceptar una observación generada en cada iteración. Note que solo es necesario conocer $p(\theta \, | \, x)$ hasta una constante de normalización, pues en el cociente de Hastings ésta se cancela. Es por ello que resulta sumamente útil para el cálculo de la distribución final. De forma análoga a las secciones anteriores se tiene que
+\begin{equation*}
+	p(\theta \, | \, x) = \frac{ \pi_0(\theta, x) }{ \int \pi_0(\tilde{\theta}, x) \, d\tilde{\theta} },
+\end{equation*}
+donde $\pi_0(\theta, x) = p(x \, | \, \theta) p(\theta)$. El Código \ref{code:MH_Algorithm} muestra el algoritmo de Metropolis-Hastings.
+
+
+
+
+\begin{lstlisting}[style=thesis, escapeinside={(*}{*)}, caption={Algoritmo de Metropolis-Hastings.}, captionpos=b, label=code:MH_Algorithm]
+ Input : Funciones (*$Q(\theta)$*), (*$p(\theta)$*) y (*$p(x \, | \, \theta)$*)
+         Muestra  (*$x_1, ..., x_n$*)
+         Tamaño de muestra (*$N$*)
+ Output: Muestra de (*$p(\theta \, | \, x)$*)
+ 
+ Genera (*$\theta_0 \in \Theta$*) arbitrariamente
+ 
+ for(i in 1:N)
+  Genera (*$\theta_s \sim Q(\theta_s | \theta_{i-1} ) $*)
+  Determina (*$\alpha( \theta_s, \theta_{i-1} )$*)
+  Genera (*$u \sim \U(0,1)$*)
+   if( (*$u < \alpha $*) )
+    Define (*$\theta_i = \theta_s$*)
+   else
+    Define (*$\theta_i = \theta_{i - 1}$*)
+   end
+ end
+\end{lstlisting}
+
+
+
+
+\subsection{Muestreo de Gibbs}
+
+Quizás el algoritmo más popular de los métodos MCMC es el muestreo de Gibbs, el cual resulta ser un caso particular de M-H que ganó popularidad a principios de los años 90 \citep[ver][]{gelfand_y_smith, geman_y_geman}.\\
+
+A diferencia del algoritmo de M-H, cada nuevo valor en la cadena se obtiene mediante un proceso iterativo que se basa en la generación de observaciones de distribuciones de menor dimensión que la de $\theta$, digamos $d$. En particular, supongamos que $\theta = (\theta_1, ..., \theta_k)^T$ es una partición de $\theta$, con $\theta_i \in \mathbb{R}^{d_i}$ y $\sum_i d_i = d$. Se definen las \textit{densidades condicionales completas} como
+\begin{align*}
+	&p( \theta_1 \, | \, \theta_2, ..., \theta_k, x ), \\
+    &p( \theta_i \, | \, \theta_1, ..., \theta_{i-1}, \theta_{i+1}, ..., \theta_k, x ), \quad (i=2, ..., k-1), \\
+    &p( \theta_k \, | \, \theta_1, ..., \theta_{k-1}, x ).
+\end{align*}
+Generalmente éstas son fáciles de identificar inspeccionando la forma de (proporcional) de $p(\theta \, | \, x)$. \\
+
+En el muestreo de Gibbs la probabilidad de transición siempre es igual a 1 (es decir, el cociente de Hastings definido en (\ref{eq:cociente_hastings}) siempre valdrá 1). Así, dado un valor inicial $\theta^{(0)} = (\theta_1^{(0)}, ..., \theta_k^{(0)})$, el muestreo de Gibbs genera una cadena de Markov en la que $\theta^{(t+1)}$  se escoge a partir de $\theta^{(t)}$ como sigue:
+\begin{align*}
+ &\text{Generar } \theta_1^{(t+1)} \text{ de } p( \theta_1 \, | \, \theta_2^{(t)}, ..., \theta_k^{(t)}, x ), \\
+ &\text{Generar } \theta_2^{(t+1)} \text{ de } p( \theta_2 \, | \,
+\theta_1^{(t+1)}, \theta_3^{(t)} ..., \theta_k^{(t)}, x ), \\
+ &\hspace{3cm}\vdots \\
+ &\text{Generar } \theta_k^{(t+1)} \text{ de } p( \theta_k \, | \, \theta_1^{(t)}, ..., \theta_{k-1}^{(t+1)}, x ).
+\end{align*} 
+
+Si este proceso se itera un número suficientemente grande de veces, digamos $M$, entonces se puede considerar que $(\theta_{1}^{M}, \theta_{2}^{M}, ..., \theta_{k}^{M})$ es \textit{una} observación que proviene aproximadamente de $p(\theta \, | \, x)$. \\
+
+
+No se mostrará que dichos métodos en efecto estiman lo que pretenden, ya que esto rebasaría el propósito de esta tesis. Sin embargo, se reitera al lector interesado que consulte la bibliografía recomendada, en especial \citet{chib_mh_history, notas_mcmc_egp, hitchcock_mh_history}.
+

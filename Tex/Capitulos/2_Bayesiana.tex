@@ -1,0 +1,234 @@
+\chapter[Estadística Bayesiana]{Teoría de la Decisión y Estadística Bayesiana} \label{chapter:bayesiana}
+
+\epigraph{\textit{Bayesian Statistics offers a rationalist theory of personalistic beliefs in contexts of uncertainty, with the central aim of characterising how an individual should act in order to avoid certain kinds of undesirable behavioural inconsistencies.}}{--- Bernardo y Smith, \textit{Bayesian Theory} (2000)}
+
+
+Aunque no se ha llegado a un consenso sobre una definición general de la Estadística, para propósitos de esta tesis ésta se definirá como \textit{un conjunto de técnicas cuyo propósito es describir fenómenos que se manifiestan a través de datos que presentan variabilidad} \citep{notas_bayes}. Esta definición resalta el ámbito de estudio (datos que presentan variabilidad) y el propósito (describir) de la Estadística. \\
+
+
+Si bien el razonamiento y estudio de la Estadística se remonta al Siglo XVII,\footnote{Siglo en el que se comenzó a desarrollar la Teoría de la Probabilidad. La Estadística contemporánea no se desarrolló sino hasta el Siglo XIX.} no fue sino hasta el Siglo XX que ésta se formalizó (o, quizás mejor dicho, se ``matematizó'') gracias a las contribuciones de varios personajes, entre los cuales destacan Karl Pearson (1857-1936), Ronald Fisher (1890-1962) y Jerzy Neyman (1894-1981), entre muchos otros. Fue en estos años cuando los académicos de la época decidieron tratar de encontrar soluciones que tuvieran fundamentos matemáticos sólidos a los problemas que comúnmente se enfrentaban en la Estadística. El resultado de esta hazaña es lo que hoy se conoce como \textit{Estadística Matemática}; ésta surge como una serie de métodos o procedimientos que permiten resolver problemas como el de estimación puntual, estimación por regiones, pronósticos puntuales y por regiones, y contraste de hipótesis. A pesar de que la Estadística Matemática resultó ser (y sigue siendo) sumamente útil, algunos problemas comenzaron a surgir en los siguientes años; principalmente:
+
+\begin{enumerate}
+\item La Estadística Matemática no es una teoría, entendida en el sentido axiomático. No hay una serie de postulados de donde se puedan deducir simultáneamente todos los métodos que la conforman.\footnote{Esto contrasta fuertemente con la Teoría de la Probabilidad, que tiene como postulados a los axiomas de \cite{kolmogorov}.}
+\item Como consecuencia de 1. pueden existir inconsistencias entre métodos. Algunas soluciones a un problema pueden no tener sentido, o incluso pueden contradecir otras soluciones.
+\end{enumerate}
+
+En años posteriores al desarrollo de la Estadística Matemática algunos estadísticos de la época trataron de solucionar estos problemas. Hay dos vertientes generales que logran este objetivo y desembocan en la Estadística Bayesiana: los teoremas de representación de Bruno de Finetti y la Teoría de la Decisión. En esta tesis se abordará la vertiente de la Teoría de la Decisión. El problema de diseño de experimentos (que se discute en el Capítulo \ref{chapter:design}) se trata también desde esta perspectiva. \\
+
+El propósito de este capítulo es explicar los fundamentos de la Teoría de la Decisión y de la Teoría de la Inferencia Bayesiana necesarios para producir inferencia en el caso de los modelos lineales generalizados y para tratar el diseño de experimentos. Cabe mencionar que este capítulo no pretende desarrollar de manera profunda la Teoría de la Decisión; tampoco tiene como objetivo deducir la relación entre ésta y la Estadística Bayesiana más allá de lo necesario para su aplicación en capítulos subsecuentes. Si el lector está interesado en estos temas se le invita a consultar la bibliografía recomendada; en particular, ver \citep{bernardo_smith, mendoza_pena, notas_bayes}.
+
+
+\section{Problemas de decisión}
+
+Para el ser humano siempre ha sido de interés estudiar el proceso de toma de decisiones. Como \cite{mendoza_pena} mencionan, en la literatura generalmente hay dos formas de abordar este tema: una descriptiva y una normativa. La descriptiva pretende explicar cómo los agentes verdaderamente toman decisiones, y la normativa explica cómo \textit{deberían} tomarlas para satisfacer algún o algunos criterios previamente establecidos. Esta tesis se centrará en una Teoría de la Decisión normativa.\\
+
+Un problema de decisión se refiere a la situación en la que un \textit{tomador de decisiones} debe seleccionar una, y solo una, opción de un conjunto de posibles decisiones, $\D$. Desde luego que esta decisión debe ser óptima en algún sentido. En particular las decisiones deben estar relacionadas con sus respectivas consecuencias, y es con éstas que la optimalidad de la decisión debe ser juzgada. De hecho debe existir una relación de orden $\succ$ en el conjunto de consecuencias, $\mathbb{C}$, que permita determinar cuál de éstas es más preferible. La terna $( \D, \mathbb{C}, \succ )$ se conoce como \textit{problema de decisión con certeza} cuando a cada decisión en $\D$ se le asocia, sin incertidumbre, una consecuencia en $\mathbb{C}$. Sin embargo, en la práctica cuando una decisión ha sido seleccionada generalmente hay una serie de consecuencias que pueden ocurrir; más aún, no hay certeza sobre cuál consecuencia ocurrirá. Así pues a cada decisión se le asocia también un conjunto de eventos inciertos relevantes, cada uno de los cuales está a su vez asociado con una consecuencia. Aquí ya estamos hablando de un \textit{problema de decisión en ambiente de incertidumbre}, cuya definición se enuncia a continuación para futura referencia. \\
+
+\begin{definition}[Problema de Decisión] \label{def:decision_problem}
+Un problema de decisión en ambiente de incertidumbre es una cuarteta $( \D, \mathbb{E}, \mathbb{C}, \succ )$, donde:
+\begin{enumerate}
+\item $\D = \{ d_1, d_2, ..., d_k \}$ es el conjunto de posibles decisiones.
+\item $\mathbb{E}$ es el conjunto de eventos inciertos relevantes, de tal forma que a cada decisión $d_i$ le corresponde un conjunto de eventos inciertos relevantes
+$\mathbb{E}_i = \{E_{i1}, E_{i2}, ..., E_{i n_i} \} \subset \mathbb{E}$, donde $E_{ij} \cap E_{ij'} = \emptyset$ para $j \neq j'$.
+\item $\mathbb{C}$ es el conjunto de consecuencias, de tal forma que a cada evento incierto relevante $E_{ij}$ le corresponda unívocamente una consecuencia $c_{ij} \in \mathbb{C}$.
+\item $\succ$ es una relación de orden en $\mathbb{C}$ que determina, dadas dos consecuencias, cuál es más preferible (o si son igualmente preferibles) para el tomador de decisiones.
+\end{enumerate}
+\end{definition}
+
+Los eventos inciertos relevantes deben considerar todas las consecuencias, de manera que, para cualquier $i$,
+\begin{equation*}
+\bigcup_{j} E_{ij} = \Omega,
+\end{equation*}
+donde $\Omega$ es el evento seguro.\footnote{El evento seguro es aquel que ocurre con probabilidad 1, y se refiere al hecho de que los eventos inciertos relevantes asociados a una decisión deben considerar todas las posibilidades a ocurrir.} En otras palabras, $\E_i$ es una partición del evento seguro. En lo que resta de este capítulo siempre se pensará en un problema de decisión genérico como el recién definido. \\
+
+
+Una manera gráfica de representar un problema de decisión es mediante un \textit{árbol de decisión}. Dado un problema de decisión $( \D, \mathbb{E}, \mathbb{C}, \succ )$ cualquiera, su árbol de decisión asociado es el siguiente:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  [
+    grow                    = right,
+    sibling distance        = 6em,
+    level distance          = 5em,
+    edge from parent/.style = {draw, -latex},
+    every node/.style       = {font=\normalsize},
+    sloped
+  ]
+  \node [root] {}
+    child { node at (0.1, 1) [dummy] {}
+    		child{ node at (0.25, 0) {$c_{ij} \in \mathbb{C}_i$}
+        	edge from parent node [above] {$E_{ij}$}}
+    	edge from parent node [above] {$d_i$}};
+\end{tikzpicture}
+\caption{Árbol de decisión para un problema de decisión genérico como el de la Definición \ref{def:decision_problem}.}
+\label{dt:generic}
+\end{figure}
+
+El nodo inicial es un cuadrado, lo que denota un \textit{nodo de decisión}. El tomador de decisiones selecciona la opción $d_i$ del conjunto de opciones. Sin embargo esta decisión tiene asociados los eventos inciertos relevantes en $\mathbb{E}_i$. En el diagrama esto se denota mediante un nodo circular llamado \textit{nodo de incertidumbre}. Cada evento incierto relevante a su vez tiene asociada una consecuencia, la cual se encuentra al final del árbol de decisión. En resumen, el tomador de decisiones toma una decisión que se enfrenta a una incertidumbre y que deriva en una cierta consecuencia.
+
+
+
+
+
+
+
+\section{Axiomas de coherencia}
+
+El núcleo de la inferencia Bayesiana recae en los llamados \textit{axiomas de coherencia}, pues son los postulados básicos de la Teoría de la Decisión. Estos se enunciarán de forma análoga a como lo hacen \citet[Capítulo~3.1]{notas_bayes}, aunque se recomienda revisar dicho reporte técnico, así como \citet[Capítulo~2.3]{bernardo_smith}, para una discusión más detallada.
+
+\begin{enumerate}
+\item \textbf{Comparabilidad}. Dados cualesquiera $d_i, d_j \in \D$, debe ocurrir una, y solo una, de las siguientes:
+	\begin{itemize}
+	\item $d_i \succ d_j$ ($d_i$ es más preferido que $d_j$).
+    \item $d_j \succ d_i$ ($d_j$ es más preferido que $d_i$).
+    \item$d_i \sim d_j$ ($d_i$ y $d_j$ son igualmente preferidos).
+	\end{itemize}
+Además, existen $c_{*}, c^{*} \in \mathbb{C}$ tales que $c_{*} \preceq c \preceq c^{*}$ para todo $c \in \mathbb{C}$.
+
+\item \textbf{Transitividad}. Dados $d_i, d_j, d_k \in \D$, si $d_i \succ d_j$ y $d_j \succ d_k$ entonces debe ocurrir que $d_i \succ d_k$. Análogamente, si $d_i \sim d_j$ y $d_j \sim d_k$ entonces necesariamente $d_i \sim d_k$.
+
+\item \textbf{Sustituibilidad}. Si $d_i, d_j \in \D$ son opciones y $A$ es un evento incierto tal que $d_i \succ d_j$ si ocurre $A$ y $d_i \succ d_j$ si ocurre $A^c$, entonces $d_i \succ d_j$. Análogamente, si $d_i \sim d_j$ cuando ocurre $A$ y también cuando ocurre $A^c$ entoces $d_i \sim d_j$.
+
+\item \textbf{Eventos de referencia}. Independientemente de los eventos inciertos
+relevantes, el tomador de decisiones puede imaginar un procedimiento para
+generar puntos en el cuadrado unitario $I$ de manera que, para cualesquiera dos regiones $R_1, R_2 \in I$, el evento $A_1 = \{ z \in R_1 \}$ es más creíble que el evento $A_2 = \{ z \in R_2 \}$ si, y solo si, Área($R_1$) $>$ Área($R_2$).
+\end{enumerate}
+
+Los primeros dos axiomas simplemente proveen de estructura a los conjuntos de consecuencias y opciones, mientras que el tercero define una forma precisa de coherencia en la toma de decisiones. El cuarto axioma, aunque puede parecer extraño a primera impresión, simplemente dice que el tomador de decisiones en cuestión puede concebir la idea de una distribución uniforme en el cuadrado unitario de $\mathbb{R}^2$, la cual no está relacionada con los eventos inciertos relevantes.\\
+
+Estos axiomas, o versiones similares, se han presentado en la literatura en distintas formas. La versión que aquí se presenta tiene como antecedente el libro de Leonard Jimmie \cite{savage}. En cualquier caso, estos principios son los que garantizan que la Estadística Bayesiana tenga carácter de teoría, a diferencia de la Estadística Matemática. Los resultados que se discuten en lo que resta del capítulo pueden deducirse enteramente a partir de los axiomas de coherencia. Sin embargo, ya que esto rebasa el propósito de esta tesis, se recomienda al lector interesado revisar la bibliografía recomendada si desea ver los detalles de esas demostraciones.
+
+
+
+
+
+
+\section{Probabilidad y utilidad}
+
+Un tema que es de suma importancia y que aparece de manera natural en el enfoque Bayesiano es el de la probabilidad. En la vertiente Bayesiana la probabilidad tiene una interpretación \textit{subjetiva}: cualquier evento sobre el que existe incertidumbre es sujeto a que se le asigne una probabilidad; además, ésta es personal y depende de la información disponible para quien la asigne. Los axiomas de coherencia ofrecen una manera objetiva de determinar la probabilidad que un agente atribuye a algún evento incierto. Algo que se puede demostrar es que los axiomas de \cite{kolmogorov} son consecuencia directa de la definición de probabilidad de Teoría de la Decisión. De esta manera, todos los resultados de la Teoría de la Probabilidad se pueden (y se deben) utilizar en el ámbito de la Teoría de la Decisión.\\
+
+La idea natural es asignar una probabilidad de ocurrencia a cada uno de los eventos inciertos relevantes. Esto es, dado un problema de decisión $( \mathbb{D}, \mathbb{E}, \mathbb{C}, \succ )$, el tomador de decisiones debe asignar una distribución de probabilidades $p(\cdot)$ sobre cada $\E_i$. Por lo dicho anteriormente, $p$ resulta ser una distribución en el sentido habitual de la Teoría de la Probabilidad. \\
+
+Otro elemento importante en el enfoque Bayesiano es el de utilidad. Las consecuencias son un elemento fundamental en la solución de un problema de decisión; sin embargo la trascendencia específica de cada consecuencia solo se registra a través del beneficio que le produce al tomador de decisiones. De los axiomas se sigue que es posible y necesario definir una función $u: \mathbb{C} \to \mathbb{R}$ que asigna, a cada consecuencia, una utilidad numérica. De esta forma comparar consecuencias se reduce a comparar números reales. A veces es común escribir $u(d, E)$, con $d \in \mathbb{D}$ y $E \in \E$. También es posible (y a veces intuitivamente más sencillo) trabajar con funciones de \textit{pérdida}, es decir, funciones que cuantifiquen el perjuicio que cada consecuencia produce al tomador de decisiones. \\
+
+
+Es sencillo incorporar la probabilidad y la utilidad en los árboles de decisión, y el árbol \ref{dt:generic} revisado previamente tomaría la siguiente forma:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  [
+    grow                    = right,
+    sibling distance        = 6em,
+    level distance          = 5em,
+    edge from parent/.style = {draw, -latex},
+    every node/.style       = {font=\normalsize},
+    sloped
+  ]
+  \node [root] {}
+    child { node at (0.1, 1) [dummy] {}
+    		child{ node at (1.5, 0) {$c \leftrightarrow u(c) = u(d, E)$}
+        	edge from parent node [above] {$E$}
+            				 node [below] {$p(E)$}}
+    	edge from parent node [above] {$d$}};
+\end{tikzpicture}
+\caption{Árbol de decisión para un problema de decisión genérico incorporando la probabilidad y la utilidad.}
+\label{dt:generic_2}
+\end{figure}
+
+
+
+No está de más insistir en que la utilidad, al igual que la probabilidad, se puede definir formalmente en el contexto de la Teoría de la Decisión. Además, si bien la utilidad que un tomador de decisiones asigna a cada consecuencia es subjetiva, la Teoría de la Decisión también ofrecen una manera de medir dicha utilidad. Estos dos conceptos se juntan para dar lugar a un tercer concepto que aparece de forma natural en el enfoque Bayesiano: el de utilidad esperada, el cual se define a continuación.
+
+\begin{definition}[Utilidad esperada]
+La utilidad esperada de una decisión $d_i \in \mathbb{D}$ se define como
+\begin{equation}\label{utilidad_esperada_1}
+\E \left[ u(d_i) \right] = \sum_{E \in \E_i} u(d_i, E) P(E),
+\end{equation}
+donde $P(E)$ denota la probabilidad que el tomador de decisiones asigna al evento incierto relevante $E$.
+\end{definition}
+
+Esta definición se puede generalizar si el espacio de eventos inciertos relevantes es no numerable simplemente cambiando la suma por una integral. Además, la definición también es válida para funciones de pérdida en vez de utilidad (y se llama pérdida esperada).\\
+
+Con estos elementos es posible caracterizar la solución de cualquier problema de decisión. Como \cite[Capítulo~2.5]{bernardo_smith} demuestran, los axiomas de coherencia implican que la solución de un problema de decisión es aquella decisión que maximice la utilidad esperada. En otras palabras, si $( \mathbb{D}, \mathbb{E}, \mathbb{C}, \succ )$ es un problema de decisión con función de utilidad $u$, entonces la solución $d^*$ es tal que
+\begin{equation}\label{max_utilidad_esperada}
+d^* = \argmax_{d \in \mathbb{D}} \E \left[ u(d) \right].
+\end{equation}
+Si en el problema se está trabajando con una función de pérdida, entonces se debe \textit{minimizar} la pérdida esperada.
+
+
+\section{El Teorema de Bayes}
+
+Hasta ahora se ha discutido cómo resolver problemas de decisión genéricos. Sin embargo es claro que dicha solución depende de la información (o incertidumbre) que el tomador de decisiones tiene. Luego, la solución es en realidad estática y se refiere a un punto específico en el tiempo. Pero, citando a Dennis \cite{lindley_uncertainty}, ``uncertainty is a personal matter; it is not \textit{the} uncertainty but \textit{your} uncertainty.'' ¿Qué pasa si el tomador de decisiones obtiene nueva información, en forma de datos por ejemplo? En esta sección se enunciará el Teorema de Bayes, que es el mecanismo que permite incorporar información adicional al análisis. La demostración del Teorema de Bayes se obviará, ya que es una consecuencia sencilla de los axiomas de Kolmogorov (y, por lo discutido en la sección anterior, lo es también de la definición de probabilidad en Teoría de la Decisión), y se puede encontrar en cualquier libro introductorio a Teoría de la Probabilidad \citep[por~ejemplo][]{ross_probability}.
+
+\begin{theorem}[de Bayes]
+Sean $E$ y $F$ eventos inciertos tales que ${P(F) > 0}$. Entonces
+\begin{equation}\label{teo_bayes1}
+P(E \, | \, F) = \frac{P(F \, | \, E) P(E)}{P(F)}.
+\end{equation}
+\end{theorem}
+
+Pensando en un problema de decisión, $F$ toma el lugar de la nueva información y $E \in \E_i$ será un evento incierto relevante para alguna decisión. En particular, como $\E_i$ forma una partición del evento seguro, podemos utilizar el teorema de probabilidad total para escribir (\ref{teo_bayes1}) como
+\begin{equation*}
+P(E_{ij} \, | \, F) = \frac{P(F \, | \, E_{ij}) P(E_{ij})}{ \sum_{k} P(F \, | \, E_{ik}) P(E_{ik}) }.
+\end{equation*}
+Finalmente note que el denominador de la expresión anterior, cuando se considera como función de $E_{ij}$, no es más que una constante de normalización: no depende de $E_{ij}$. Es por ello que el Teorema de Bayes, en el contexto de la Estadística Bayesiana, generalmente se escribe
+\begin{equation}\label{teo_bayes2}
+P(E_{ij} \, | \, F) \propto P(F \, | \, E_{ij}) P(E_{ij}),
+\end{equation}
+donde $\propto$ se lee ``es proporcional a''. \\
+
+La interpretación de la expresión (\ref{teo_bayes2}) es interesante. $P(E_{ij} \, | \, F)$ describe la probabilidad de los eventos inciertos relevantes \textit{después} de haber observado la nueva información $F$, por lo que se conoce como \textit{distribución final} o a posteriori de $E_{ij}$, y es proporcional al producto de dos factores. Uno de ellos, $P(E_{ij})$, es la distribución de probabilidad que describe la incertidumbre sobre los eventos inciertos \textit{antes} de observar la nueva información, conocido como la \textit{distribución inicial} o a priori de $E_{ij}$. El otro, $P(F \, | \, E_{ij})$, describe la probabilidad de haber observado la nueva información, dado el evento incierto relevante $E_{ij}$. Este factor se conoce como verosimilitud, ya que coincide con la función de verosimilitud encontrada en la literatura estadística. Note que es necesario conocer la forma de la verosimilitud, $P(F \, | \, E_{ij})$. De no ser así es imposible actualizar la incertidumbre que se tiene sobre los eventos inciertos relevantes vía el Teorema de Bayes. Esto tiene sentido si se piensa que el propósito de obtener nueva información es disminuir la incertidumbre. Luego, la información adicional \textit{debe} estar relacionada con la fuente de la incertidumbre del problema de decisión, que son precisamente los eventos inciertos relevantes y, además, se debe conocer esta relación. \\
+
+%El Teorema de Bayes ofrece entonces una manera de actualizar la probabilidad que el tomador de decisiones asigna a los eventos inciertos relevantes a la luz de nueva información. Más aún, el Teorema de Bayes es \textit{la} manera de incorporar información adicional. Esto quiere decir que, de entre todas las maneras en las que se puede incorporar dicha información, el Teorema de Bayes resulta ser la óptima, en el sentido en el que dictan los axiomas de coherencia. La manera de probar esto, como muestran \citet[Capítulo~3.6]{notas_bayes}, es considerar el conjunto $\mathcal{Z}$ de posible información nueva (en forma de datos) y, posteriormente, el espacio de funciones de $\mathcal{Z}$ en $\mathbb{D}$. Cada una de estas funciones se conoce como \textit{regla de decisión}, y \citeauthor{notas_bayes} argumentan que la solución del problema general de escoger la mejor regla de decisión es la actualización vía el Teorema de Bayes. \\
+
+El Teorema de Bayes resulta ser entonces de importancia práctica en la Estadística Bayesiana. Se puede deducir de los axiomas de coherencia (ya que estos implican los axiomas de Kolmogorov), y es la forma de actualizar las probabilidades de los eventos inciertos relevantes que el tomador de decisiones asignó inicialmente a la luz de nueva información.
+
+
+
+
+
+
+
+\section{Estadística Bayesiana en la práctica}
+
+
+
+Hasta ahora se ha discutido el fundamento que proporciona a la Estadística Bayesiana el carácter de teoría axiomática, la Teoría de la Decisión, así como el mecanismo óptimo para incorporar información adicional al análisis. En esta sección se discutirá, brevemente, cómo se aplica esto en problemas de inferencia estadística simples. En particular, se discutirán problemas de inferencia paramétrica.\\
+
+
+
+Como se discutió en la sección anterior, lo único necesario para resolver un problema de decisión es maximizar la utilidad esperada. Es entonces necesario definir las posibles opciones, los eventos inciertos relevantes con su distribución de probabilidades respectiva y las consecuencias con su respectiva función de utilidad o pérdida. En la práctica una decisión se refiere a la descripción del fenómeno que se desea utilizar. Por ejemplo, una decisión puede ser el valor del parámetro que se desea utilizar como estimador puntual; o los extremos de un intervalo si se desea realizar estimación por intervalos; también puede ser la acción de aceptar o rechazar una hipótesis nula en el contexto de contraste de hipótesis. \\
+
+
+
+Los eventos inciertos relevantes generalmente son los posibles valores del parámetro. De esta forma la distribución de probabilidades se \textit{debe} asignar sobre los valores del parámetro. Esto contrasta fuertemente con la vertiente frecuentista que, si bien reconoce la incertidumbre sobre los parámetros, no admite la idea de cuantificar dicha incertidumbre vía una distribución de probabilidades. \\
+
+
+
+Finalmente la función de utilidad o pérdida generalmente mide la calidad de la decisión. Si, por ejemplo, para estimación puntual consideramos una función de pérdida, una posibilidad podría ser la desviación absoluta del valor que se elige como estimación con respecto al verdadero valor del parámetro. \\
+
+
+
+Con estos elementos ya es posible resolver el problema. Sin embargo, hay un tema importante que se ha obviado hasta el momento: la muestra. La definición de Estadística enunciada al inicio de este capítulo resalta que la Estadística tiene como objetivo describir fenómenos que se manifiestan a través de datos. Empero, no se ha hablado del papel que los datos juegan en el paradigma Bayesiano. Supongamos entonces que se tiene una muestra de estos datos. Ésta, que debe provenir de algún modelo de muestreo conocido, modifica la distribución de probabilidades que se asignó inicialmente sobre los valores del parámetro, vía el Teorema de Bayes. Es por ello que usualmente se habla de la distribución inicial o \textit{a priori}, y la distribución final o \textit{a posteriori}. Así pues, la solución al problema se encuentra maximizando la utilidad esperada posterior, es decir, aquella que se calcula con respecto a la distribución final. \\
+
+
+
+Lo anterior se puede resumir en lo que \cite{notas_bayes_egp} denomina \textit{el proceso de aprendizaje Bayesiano}, que consta de cuatro pasos:
+\begin{enumerate}
+\item Especificación de un modelo de muestreo o verosimilitud, $p(x \, | \, \theta)$.
+\item Especificación de una distribución inicial, $p(\theta)$.
+\item Cálculo de la distribución final, $p(\theta \, | \, x_1, ..., x_n)$, vía el Teorema de Bayes.
+\item Resolución del problema de decisión con la distribución final.
+\end{enumerate}
+
+
+Este es el procedimiento Bayesiano por excelencia. Todos los problemas de inferencia se resuelven, en mayor o menor medida, de esta forma. No hay que olvidar que este proceso de aprendizaje tiene como fundamento a la Teoría de la Decisión. Los distintos valores del parámetro son los eventos inciertos y la función de utilidad o pérdida es la que determina el tipo de solución que se tiene. Por ejemplo, en el problema de estimación puntual una función de pérdida cuadrática deriva en el valor esperado de la distribución final como solución. En la práctica se calcula la distribución final independientemente del tipo específico de inferencia que se busque producir, ya que ésta contiene toda la información sobre los eventos inciertos. De hecho, además de contribuir a la solución del problema de decisión específico, con ella se pueden calcular resúmenes para comprender la información que contiene, como su media, mediana, moda, quintiles, o intervalos de \textit{probabilidad}. \\
+
+
+Otro tema relevante es el de la especificación de la distribución inicial. Si bien en muchos casos la persona que realiza el estudio tiene relativamente claros los conocimientos iniciales,\footnote{Por ejemplo, si ya se había hecho un estudio similar es posible incorporar los resultados en la distribución inicial.} en muchos otros casos o bien no se tienen conocimientos iniciales, o bien estos se quieren omitir deliberadamente.\footnote{Usualmente esto ocurre cuando el investigador o investigadora en cuestión desea realizar el análisis desde una postura neutral, como es el caso de los conteos rápidos en México.} En esta situación es de interés utilizar alguna distribución inicial cuyo impacto en el análisis sea mínimo. Aquí aparece el concepto de distribuciones iniciales \textit{mínimo informativas}, a veces también llamadas de referencia. \citet[Capítulo~6.4]{notas_bayes} discuten algunos de los métodos más populares para obtener este tipo de distribuciones, de entre los cuales destaca el método de Jeffreys. Éste asigna como distribución inicial para el parámetro la raíz cuadrada del determinante de la matriz de información de Fisher, la cual se estudiará en el siguiente capítulo con mayor detalle. \\
+
+
+Finalmente es importante comentar que, si bien en principio el proceso de aprendizaje Bayesiano es sencillo, en la práctica calcular la distribución final puede no serlo. Existe toda un área de investigación que se dedica a diseñar métodos eficientes para realizar este cálculo, la mayoría de los cuales se desarrollaron a principios de los 90 y pertenecen a la familia conocida como \textit{Markov chain Monte Carlo (MCMC) methods}. Para una discusión histórica sobre el primero de estos algoritmos (el de Metropolis-Hastings) se recomienda revisar \citep{hitchcock_mh_history}; para una deducción más formal del algoritmo, así como de otros métodos populares (e.g. el muestreo de Gibbs) se recomiendan \citep{chib_mh_history,notas_mcmc_egp}. Además, en el Apéndice \ref{chapter:appendixBayesiana} se discuten con mayor detalle algunos de estos métodos.
+
