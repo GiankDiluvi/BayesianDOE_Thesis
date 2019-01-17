@@ -1,0 +1,424 @@
+\documentclass[11pt]{book}
+\usepackage[paperwidth=17cm, paperheight=22.5cm, bottom=2.5cm, right=2.5cm]{geometry}
+\usepackage{amssymb,amsmath,amsthm} %paquetes para símbolo matemáticos
+\usepackage[spanish,mexico]{babel}
+\usepackage[utf8]{inputenc} 
+%Paquetes para escribir acentos y otros símbolos directamente
+\usepackage{enumerate}
+\usepackage{graphicx}
+%\usepackage{subfig} %para poner subfiguras
+\usepackage[pdftex,
+            pdfauthor={Gian Carlo Di-Luvi Martínez},
+            pdftitle={Diseno Bayesiano de experimentos para GLMs - Diluvi},
+            pdfsubject={ESTADÍSTICA},
+            pdfkeywords={PALABRAS CLAVE},
+            pdfproducer={Latex con hyperref},
+            pdfcreator={pdflatex}]{hyperref}
+ 
+ 
+% Gian Carlo Diluvi's preamble ---------
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage[nottoc]{tocbibind}
+\usepackage{apacite} % Citar con APA
+%\usepackage[numbers]{natbib}
+\usepackage{natbib}
+\AtBeginDocument{\renewcommand{\&}{y}} % Para citar como autor1 y autor2
+%\usepackage{biblatex}
+%\bibliography{bibliografia}
+\usepackage{here}
+\usepackage{float}
+\usepackage{etoolbox}
+\usepackage{url}
+\usepackage{mathrsfs}
+\usepackage{commath}
+\usepackage[usenames, dvipsnames]{color}
+\usepackage{multirow}
+%\usepackage{subcaption}
+\usepackage{dsfont} % Función indicadora
+
+% Código --
+\usepackage{listings}
+	\lstset{frame = single,
+    		literate={á}{{\'a}}1
+        			 {ã}{{\~a}}1
+        			 {é}{{\'e}}1
+        			 {ó}{{\'o}}1
+        			 {í}{{\'i}}1
+        			 {ñ}{{\~n}}1
+        			 {¡}{{!`}}1
+        			 {¿}{{?`}}1
+        			 {ú}{{\'u}}1
+                     {Á}{{\'A}}1
+                     {É}{{\'E}}1
+                     {Í}{{\'I}}1
+                     {Ó}{{\'O}}1
+                     {Ú}{{\'U}}1
+} 
+\renewcommand{\lstlistingname}{Código}
+\lstdefinestyle{R}{%
+    %\captionsetup{labelformat=algocaption,labelsep=colon}
+    mathescape=false,
+    breaklines=true,
+    frame=single,
+    numbers=left, 
+    numberstyle=\small,
+    language=R,
+    basicstyle=\scriptsize\ttfamily, 
+    keywordstyle=\color{blue}\bf,
+    xleftmargin=.04\textwidth,
+    commentstyle=\color{OliveGreen},
+    stringstyle=\color{OliveGreen},
+    deletekeywords={mean, sd, start},
+    morekeywords={TRUE, FALSE, seed}
+}
+
+\lstdefinestyle{thesis}{%
+    %\captionsetup{labelformat=algocaption,labelsep=colon}
+    mathescape=false,
+    breaklines=true,
+    frame=single,
+    numbers=left, 
+    numberstyle=\small,
+    language=R,
+    basicstyle=\scriptsize\ttfamily, 
+    keywordstyle=\color{black}\bf,
+    xleftmargin=.04\textwidth
+}
+%--
+
+% Espaciado --
+\renewcommand{\baselinestretch}{1.1}
+%--
+
+% Epígrafes --
+\usepackage{epigraph}
+%\epigraphfontsize{\small\itshape}
+\setlength\epigraphwidth{0.8\textwidth}
+\setlength\epigraphrule{0pt}
+%--
+
+% Apéndice
+\usepackage[toc, page]{appendix}
+
+
+\setlength{\parindent}{0pt}
+\graphicspath{ {Images/} }
+
+\usepackage{dsfont} %Para la función indicadora (mathds{1})
+
+\usepackage{listings}   %Para introducir partes de código
+    \lstset{language=R} %Para especificar qué lenguaje se usará
+    
+\usepackage{placeins} % Para utilizar \FloatBarrier
+
+
+% Árboles de decisión
+\usepackage{tikz}
+\tikzset{
+  treenode/.style = {shape=rectangle,
+                     draw, align=center,
+                     top color=white, bottom color=white},
+  root/.style     = {treenode, font=\Large, bottom color=white},
+  env/.style      = {treenode, font=\ttfamily\normalsize},
+  dummy/.style    = {circle,draw}
+}
+\usetikzlibrary{arrows}
+
+
+% Defs
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\D}{\mathbb{D}}
+\newcommand{\N}{\mathcal{N}}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\Exp}{\mathrm{exp}}
+\newcommand{\V}{\mathrm{Var}}
+\newcommand{\Binom}{\mathrm{Binom}}
+\newcommand{\G}{\mathrm{Gamma}}
+\newcommand{\Pois}{\mathrm{Poisson}}
+%\newcommand{\lv}{\mathcal{l}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max} 
+%\DeclareMathOperator{\argmin}{arg\,min}
+%\DeclareMathOperator{\argmax}{arg\,max}
+
+% End of GCD's preamble ----------------
+
+
+\begin{document}
+
+%------------------------------------------------------------------------------
+%   COMANDOS PERSONALIZADOS
+%------------------------------------------------------------------------------
+
+%SI TU TESIS TIENE TEOREMAS Y DEMOSTRACIONES, PUEDES DESCOMENTAR Y USAR LOS SIGUIENTES COMANDOS 
+
+%\renewcommand{\proofname}{Demostración}
+%\providecommand{\norm}[1]{\lVert#1\rVert} %Provee el comando para producir una norma.
+%\providecommand{\innp}[1]{\langle#1\rangle} 
+%\newcommand{\seno}{\mathrm{sen}}
+%\newcommand{\diff}{\mathrm{d}}
+
+\newtheorem{theorem}{Teorema}[section] 
+\newtheorem{corollary}[theorem]{Corolario}
+\newtheorem{proposition}[theorem]{Proposición}
+\newtheorem{lemma}[theorem]{Lema}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definición}
+
+%\theoremstyle{remark}
+%\newtheorem{obs}[teo]{Observación}
+
+%\allowdisplaybreaks
+
+
+% Tabla en vez de cuadro
+\renewcommand{\listtablename}{Índice de tablas} 
+\renewcommand{\tablename}{Tabla}
+
+
+%--------------------------------------------------------------------------------
+%   PORTADA
+%--------------------------------------------------------------------------------
+
+\title{Diseno Bayesiano de experimentos para modelos lineales generalizados} 
+%Con este nombre se guardará el proyecto en writeLaTex
+
+\begin{titlepage}
+\begin{center}
+
+\textsc{\Large Instituto Tecnológico Autónomo de México}\\[4em]
+
+%Figura
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=10cm]{logo-ITAM-tesis.png}
+\end{center}
+\end{figure}
+
+\vspace{2em}
+
+\textsc{\huge \textbf{Diseño Bayesiano de experimentos para modelos lineales generalizados}}\\[2em]
+
+\textsc{\large Tesis}\\[1em]
+
+\textsc{que para obtener el título de}\\[1em]
+
+\textsc{LICENCIADO EN MATEMÁTICAS APLICADAS}\\[1em]
+
+\textsc{presenta}\\[1em]
+
+\textsc{\Large GIAN CARLO DI-LUVI MARTÍNEZ}\\[1em]
+
+\textsc{\large Asesor: DR. ERNESTO JUVENAL BARRIOS ZAMUDIO}
+
+\end{center}
+
+\vspace*{\fill}
+\textsc{Ciudad de México \hspace*{\fill} 2018}
+
+\end{titlepage}
+
+
+%--------------------------------------------------------------------------------
+%   DECLARACIÓN
+%--------------------------------------------------------------------------------
+
+\thispagestyle{empty}
+\vspace*{\fill}
+\begingroup
+``Con fundamento en los artículos 21 y 27 de la Ley Federal del Derecho de Autor y como titular de los derechos moral y patrimonial de la obra titulada ``\textbf{Diseño Bayesiano de experimentos para modelos lineales generalizados}'', otorgo de manera gratuita y permanente al Instituto Tecnológico Autónomo de México y a la Biblioteca Raúl Bailléres Jr., la autorización para que fijen la obra en cualquier medio, incluido el electrónico, y la divulguen entre sus usuarios, profesores, estudiantes o terceras personas, sin que pueda percibir por tal divulgación una contraprestación''.
+
+\centering
+
+\hspace{3em}
+
+\textsc{GIAN CARLO DI-LUVI MARTÍNEZ}
+
+\vspace{5em}
+
+\rule[1em]{20em}{0.5pt} % Línea para la fecha
+
+\textsc{Fecha}
+ 
+\vspace{8em}
+
+\rule[1em]{20em}{0.5pt} % Línea para la firma
+
+\textsc{Firma}
+
+\endgroup
+\vspace*{\fill}
+
+
+%--------------------------------------------------------------------------------
+%   Epígrafe
+%--------------------------------------------------------------------------------
+
+
+\frontmatter
+
+\chapter*{}
+
+\vspace{2cm}
+\begin{flushright}
+\textit{``Essentially, all models are wrong, but some are useful.''}\\
+George E. P. Box
+\end{flushright}
+
+
+
+%--------------------------------------------------------------------------------
+%   DEDICATORIA
+%--------------------------------------------------------------------------------
+
+
+
+\chapter*{Dedicatoria}
+
+
+A Regina, Marcello, Regina, y Sarah.
+
+
+
+
+
+
+
+%--------------------------------------------------------------------------------
+%   AGRADECIMIENTOS
+%--------------------------------------------------------------------------------
+
+\chapter*{Agradecimientos}
+%\markboth{AGRADECIMIENTOS23}{AGRADECIMIENTOS} % encabezado 
+
+A Sarah, a falta de palabras suficientes, por todo. ``\textit{Your mind is my treasure, and if it were broken, it would be my treasure still.}''
+\\
+
+A mamá, porque sin tu apoyo incondicional nunca hubiera terminado esta aventura. \\
+
+
+A mi familia, por siempre estar ahí para mí a lo largo de este trayecto. \\
+
+
+A mi asesor, Ernesto Barrios, por guiarme en este camino e impulsarme a dar lo mejor de mí. \\
+
+A mis sinodales, Manuel Mendoza, Luis Enrique Nieto y Gabriel Nuñez, por su tiempo, paciencia e interés. Sin ellos este trabajo no se hubiera completado. \\
+
+A todos los profesores que compartieron sus conocimientos conmigo. Particularmente a Claudia Gómez, Manuel Mendoza, Ernesto Barrios, Vladimir Caetano, César Luis García, Marcela González, Guillermo Grabinsky, \newline Ernesto Pérez Chavela y Julia Sierra. \\
+
+
+A la Bandera y a ($\varepsilon$ -- $\delta$). \\
+
+
+
+
+%--------------------------------------------------------------------------------
+%   TABLA DE CONTENIDOS
+%--------------------------------------------------------------------------------
+
+\tableofcontents
+
+
+%\newpage
+
+%\listoffigures
+
+%\listoftables
+
+
+%-------------------------------------------------------------------------------
+%   TESIS
+%-------------------------------------------------------------------------------
+
+\mainmatter %empieza la numeración de las páginas
+\pagestyle{headings}
+
+%  Incluye los capítulos en el folder de capítulos
+
+
+\include{Capitulos/1_Intro}
+
+
+
+\include{Capitulos/2_Bayesiana}
+
+
+
+\include{Capitulos/3_GLMs}
+
+
+
+\include{Capitulos/4_Diseno_de_experimentos}
+
+
+
+\include{Capitulos/5_DOE_para_GLMs}
+
+
+
+\include{Capitulos/6_Conclusiones}
+
+
+
+
+
+
+
+
+
+%--------------------------------------------------------------------------------
+%   APÉNDICES
+%--------------------------------------------------------------------------------
+
+\addtocontents{toc}{\vspace{2em}} % Agrega espacios en la toc
+
+\addcontentsline{toc}{chapter}{Apéndices}
+
+\appendix % Los siguientes capítulos son apéndices
+
+
+\chapter{Métodos computacionales Bayesianos} \label{chapter:appendixBayesiana}
+\input{Apendices/AppendixBayesiana}
+
+
+
+\chapter[Procesos Gaussianos]{Modelos de regresión de procesos Gaussianos} \label{chapter:appendixGaussianProcess}
+\input{Apendices/AppendixGaussianProcess}
+
+
+%\chapter[Algunos GLMs]{Algunos modelos lineales generalizados} %\label{chapter:appendixGLMs}
+%\input{Apendices/AppendixGLMs}
+
+
+\chapter{Código} \label{chapter:appendixCode}
+\input{Apendices/AppendixCode}
+
+
+%  Incluye los apéndices en el folder de apéndices
+
+
+
+
+
+\addtocontents{toc}{\vspace{2em}} % Agrega espacio en la toc
+
+
+%--------------------------------------------------------------------------------
+%   BIBLIOGRAFÍA
+%--------------------------------------------------------------------------------
+
+\backmatter
+\nocite{*}
+\bibliographystyle{newapa}
+%\bibliographystyle{apacite} % Así se usa y cols. en lugar de et al.
+%bibliographystyle{plainnat}
+\bibliography{bibliografia.bib}
+
+
+
+
+
+
+\end{document}
