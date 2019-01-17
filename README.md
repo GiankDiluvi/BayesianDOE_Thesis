@@ -1,8 +1,8 @@
 # Bayesian Design of Experiments for GLMs
 
-Code used in the undergraduate thesis *Bayesian Design of Experiments for Generalized Linear Models* by Gian Carlo Di-Luvi Martínez (2018). Uploaded both in English and in Spanish (original language in which it was created.)
+Code and TeX archives used in the undergraduate thesis *Bayesian Design of Experiments for Generalized Linear Models* by Gian Carlo Di-Luvi Martínez (2018). Code uploaded both in English and in Spanish (original language in which it was written).
 
-The code implements Overstall and Woods' Approximate Coordinate Exchange (ACE) algorithm for finding optimal bayesian experimental designs (Overstall and Woods, 2016), particularly by using Overstall, Woods and Adamou's *R* package `acebayes`. It also produces graphs with Wickham's `ggplot2` and Schloerke et al.'s `GGally`.
+The code implements Overstall and Woods' Approximate Coordinate Exchange (ACE) algorithm for finding optimal bayesian experimental designs (Overstall and Woods, 2016), particularly by using Overstall, Woods and Adamou's *R* package `acebayes`. It also produces graphs with Wickham's `ggplot2` and Schloerke et al.'s `GGally`. See the bibliography for more references.
 
 
 
